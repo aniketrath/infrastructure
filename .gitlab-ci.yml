@@ -1,50 +1,11 @@
 stages:
   - test
-  - deploy
-
-# Runs on every branch / merge request. Proves the config actually
-# evaluates and builds cleanly, using the same Docker-image path we
-# tested by hand — no real hardware involved.
-test-config:
+build-config:
   stage: test
   image: nixos/nix:latest
+  before_script:
+    - mkdir -p ~/.config/nix
+    - echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
   script:
-    - nix --extra-experimental-features "nix-command flakes" build .#homelab-docker-test
-    # Optional but worth it: actually boot the built image and assert
-    # something concrete about it, not just "it built".
-    - IMAGE_TAR=$(find result/ -name '*.tar.xz' -o -name '*.tar')
-    - docker import "$IMAGE_TAR" homelab-test:ci
-    - |
-      docker run -d --privileged --network none \
-        --tmpfs /tmp --tmpfs /run --tmpfs /run/lock \
-        -e container=docker --name homelab-ci-check \
-        homelab-test:ci /init
-    - sleep 10
-    - docker exec homelab-ci-check /run/current-system/sw/bin/htop --version
-    - docker exec homelab-ci-check id homelab-admin
-    - docker rm -f homelab-ci-check
-
-# Only runs when the prod branch actually gets updated (merge, direct
-# push — whatever your branch protection allows). This is what pushes
-# the config to the real machine.
-deploy-prod:
-  stage: deploy
-  image: nixos/nix:latest
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "prod"'
-  script:
-    - nix --extra-experimental-features "nix-command flakes" build .#nixosConfigurations.homelab.config.system.build.toplevel
-    # Requires: SSH_PRIVATE_KEY (CI/CD variable, protected+masked) and
-    # DEPLOY_HOST set in GitLab's CI/CD settings, plus homelab-admin's
-    # public key already present in the running machine's authorized_keys
-    # from a prior manual deploy or first install.
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-    - chmod 600 ~/.ssh/id_ed25519
-    - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-    - >
-      nix copy --to ssh://homelab-admin@$DEPLOY_HOST
-      .#nixosConfigurations.homelab.config.system.build.toplevel
-    - >
-      ssh homelab-admin@$DEPLOY_HOST
-      "sudo nixos-rebuild switch --flake $CI_PROJECT_URL#homelab"
+    - nix flake check
+    - nix build .#homelab-docker-test

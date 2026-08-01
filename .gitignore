@@ -1,0 +1,19 @@
+# Nix build outputs
+result
+result-*
+
+# Docker test artifacts, if ever left in-tree
+*.tar
+*.tar.xz
+
+# direnv cache
+.direnv/
+
+# Never commit a decrypted secret — only the encrypted .age files
+# (which are meant to be committed) belong in git.
+secrets/*.decrypted
+*.env
+
+# editor/OS junk
+.DS_Store
+*.swp

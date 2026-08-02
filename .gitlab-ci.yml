@@ -1,5 +1,10 @@
 stages:
   - test
+
+# Both jobs run in the same stage — GitLab schedules same-stage jobs in
+# parallel automatically, no extra config needed for that part.
+
+# Fast: does every config evaluate & build at all?
 build-config:
   stage: test
   image: nixos/nix:latest
@@ -7,4 +12,36 @@ build-config:
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
   script:
-    - nix build .#homelab-docker-test
+    - nix build .#vm-test
+
+# Does each REAL host's disk layout actually partition, format, and boot?
+# Builds + boot-tests a disposable image per host, using the host list
+# from the flake itself (flake.nix's `hostNames` output) — add a host to
+# flake.nix's `hosts` attrset and this job covers it automatically, no
+# CI file changes needed.
+#
+# allow_failure: disko's image-building step needs an internal builder
+# VM that requires /dev/kvm (nixpkgs' vmTools hardcodes this — a
+# longstanding nixpkgs limitation, not specific to this repo). Standard
+# GitLab shared runners don't expose /dev/kvm, so this job currently
+# can't build on them at all. Once a self-hosted runner with KVM
+# passthrough is set up, remove this line — until then, verify locally
+# via `./scripts/test-disko.sh <host>` (or `./scripts/test-suite.sh`)
+# before merging.
+disko-boot-test:
+  stage: test
+  image: nixos/nix:latest
+  allow_failure: true
+  before_script:
+    - mkdir -p ~/.config/nix
+    - echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+    - nix profile install nixpkgs#qemu nixpkgs#jq
+    - command -v ssh || nix profile install nixpkgs#openssh
+  script:
+    - |
+      HOSTS=$(nix eval --json .#hostNames | jq -r '.[]')
+      for host in $HOSTS; do
+        echo "=== Testing $host ==="
+        bash scripts/test-disko.sh "$host"
+      done
+  timeout: 90m

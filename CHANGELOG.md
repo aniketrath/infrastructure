@@ -51,3 +51,11 @@
   respectively, for consistent naming; `.gitlab-ci.yml` updated to
   install `nixpkgs#openssh` alongside `qemu`/`jq` so the SSH-based
   disko boot check works on CI runners too.
+
+### Known limitations
+- `disko-boot-test` in CI is marked `allow_failure` — disko's
+  image-building step requires an internal builder VM that needs
+  `/dev/kvm` (a longstanding nixpkgs limitation, not specific to this
+  repo), which standard GitLab shared runners don't expose. Verify
+  locally via `./scripts/test-disko.sh <host>` until a self-hosted
+  runner with KVM passthrough is set up.

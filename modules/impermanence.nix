@@ -6,7 +6,7 @@
   boot.zfs.forceImportRoot = false;
 
   # ZFS requires a unique 8-hex-char host ID. This is set per-host, not
-  # here — see hosts/<name>/disko.nix, alongside networking.hostName.
+  # here — see hosts/<n>/disko.nix, alongside networking.hostName.
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -16,11 +16,12 @@
   # Nothing written to `/` outside of what's explicitly persisted below
   # survives a reboot.
   #
-  # ONE-TIME SETUP after the very first install, before ever rebooting
-  # into the real system:
-  #   zfs snapshot zroot/root@blank
-  # (do this from the nixos-anywhere/live-install environment, right
-  # after disko creates the pool, before the first boot)
+  # Self-bootstrapping: if @blank doesn't exist yet, create it instead of
+  # rolling back. This is safe specifically because it only ever matters
+  # on the very first boot after a fresh nixos-anywhere install — at that
+  # point root already has exactly the freshly-installed closure and
+  # nothing else, so "blank" correctly means "freshly installed," not
+  # "truly empty disk." No manual `zfs snapshot` step needed anymore.
   #
   # Written as a systemd-initrd service rather than the old
   # boot.initrd.postDeviceCommands hook — modern NixOS uses a
@@ -35,7 +36,12 @@
     unitConfig.DefaultDependencies = "no";
     serviceConfig.Type = "oneshot";
     script = ''
-      zfs rollback -r zroot/root@blank
+      if ! zfs list -t snapshot zroot/root@blank >/dev/null 2>&1; then
+        echo "First boot: no @blank snapshot yet, creating one now"
+        zfs snapshot zroot/root@blank
+      else
+        zfs rollback -r zroot/root@blank
+      fi
     '';
   };
 

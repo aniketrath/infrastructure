@@ -45,11 +45,17 @@ if [[ $# -ne 2 ]]; then
 fi
 HOST="$1"
 TARGET="$2"
+TARGET_IP="${TARGET#*@}"
 
 REPO_ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
 LOG_DIR="$REPO_ROOT/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/provision-host-${HOST}-$(date +%Y%m%d-%H%M%S).log"
+
+# Everything worth having on hand afterward — pulled together into one
+# file at the end, so there's no scrolling back through terminal history
+# to reconstruct what to do next or who to tell.
+SUMMARY_FILE="$LOG_DIR/provision-host-${HOST}-SUMMARY-$(date +%Y%m%d-%H%M%S).md"
 
 if [[ "$DEBUG" == "1" ]]; then
   echo "DEBUG mode on"
@@ -72,7 +78,50 @@ nix run github:nix-community/nixos-anywhere -- \
   --generate-hardware-config nixos-facter "./hosts/${HOST}/facter.json" \
   --target-host "$TARGET" 2>&1 | tee -a "$LOG_FILE"
 
-echo "==> Done. ${HOST} should reboot into the real system."
-echo "    Once it's up, get its age public key so secrets/secrets.nix"
-echo "    can be re-encrypted for it (see secrets/secrets.nix comments):"
-echo "      ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub   # run ON the machine"
+echo "==> Install finished. Writing post-install summary to $SUMMARY_FILE"
+
+cat > "$SUMMARY_FILE" << EOF
+# Post-install checklist: ${HOST}
+
+Installed: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+Target IP at install time: ${TARGET_IP}
+Full nixos-anywhere log: ${LOG_FILE}
+
+Note: the impermanence blank snapshot (zroot/root@blank) is created
+automatically on ${HOST}'s first real boot — see
+modules/impermanence.nix's self-bootstrapping rollback service. No
+manual snapshot step needed here anymore.
+
+Also: modules/first-boot.nix runs once on that same first boot and
+drops ~homelabadmin/first-boot-info.tar.gz + NEXT_STEPS.md on the
+machine itself, with ${HOST}'s real values already filled in. SSH in
+and read that first — the steps below are the same information,
+available here in case you'd rather not wait for/rely on that step.
+
+## 1. Commit the hardware report
+
+    ls -la hosts/${HOST}/facter.json
+    git add hosts/${HOST}/facter.json
+    git commit -m "Add hardware report for ${HOST}"
+
+## 2. Extend secrets trust to this machine (it can't decrypt its own
+##    admin password on future rebuilds until this is done)
+
+    ssh -p 2222 homelabadmin@${TARGET_IP} 'cat /etc/ssh/ssh_host_ed25519_key.pub' | ssh-to-age
+
+    # paste the resulting age1... key into secrets/secrets.nix as a new
+    # entry (see that file's comments), then re-encrypt from your laptop:
+    ragenix -e secrets/homelab-admin-password.age
+
+## 3. Confirm you can actually reach it going forward
+
+    ssh -p 2222 homelabadmin@${TARGET_IP}
+
+## 4. Commit everything from steps 1–2 together, same branch -> CI ->
+##    merge flow as any other change.
+EOF
+
+echo ""
+echo "==> ${HOST} should now be running the real system. Next steps:"
+echo ""
+cat "$SUMMARY_FILE"

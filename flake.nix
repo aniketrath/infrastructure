@@ -56,7 +56,12 @@
       # ----------------------------------------------------------------
       hosts = {
         archer = {
-          extraModules = [ ./modules/impermanence.nix ];
+          extraModules = [
+            ./modules/impermanence.nix
+            ./modules/first-boot.nix
+            ./application/k3s.nix
+#           { myK3s.controlPlaneOnly = true; }
+          ];
         };
 
         # A second host is just another entry here:

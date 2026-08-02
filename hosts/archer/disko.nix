@@ -1,6 +1,6 @@
 {
   networking.hostName = "archer";
-  networking.hostId = "REPLACE_WITH_8_HEX_CHARS";
+  networking.hostId = "32b1ced8";
 
   disko.devices = {
     disk.main = {

@@ -16,3 +16,6 @@ secrets/*.decrypted
 .DS_Store
 *.swp
 logs/
+*.qcow2
+*.raw
+flake.lock

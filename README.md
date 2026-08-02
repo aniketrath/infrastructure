@@ -11,7 +11,12 @@ root with explicit persistence, secrets, and CI/CD, all as code.
 │ ├── secrets.nix # wires the agenix-encrypted admin password in
 │ ├── impermanence.nix # ZFS rollback-on-boot + explicit persistence
 │ ├── vm-test.nix # TEST-ONLY: headless VM smoke test
-│ └── disko-test.nix # TEST-ONLY: disposable disk-image overrides
+│ ├── disko-test.nix # TEST-ONLY: disposable disk-image overrides
+│ └── disko-test-ssh-key[.pub] # TEST-ONLY: throwaway keypair so
+│ # scripts/test-disko.sh can SSH into
+│ # the disposable image locally and in
+│ # CI — unlocks nothing but this
+│ # self-destructing test image
 ├── hosts/
 │ ├── archer/disko.nix # real disk layout for the archer host
 │ └── template/disko.nix # starting point for adding a new host
@@ -19,9 +24,10 @@ root with explicit persistence, secrets, and CI/CD, all as code.
 │ ├── secrets.nix # agenix recipients (who can decrypt what)
 │ └── *.age # encrypted secrets, safe to commit
 ├── scripts/
-│ ├── deployment_local.sh # build + boot the vm-test image, print SSH cmd
-│ ├── testingmodule_disko.sh # build + boot-test one host's real disk layout
-│ └── provision_host.sh # one-shot real install via nixos-anywhere
+│ ├── test-vm.sh # build + boot the vm-test image, print SSH cmd
+│ ├── test-disko.sh # build + boot-test one host's real disk layout
+│ ├── test-suite.sh # runs every local check, roughly in CI order
+│ └── provision-host.sh # one-shot real install via nixos-anywhere
 └── .gitlab-ci.yml
 
 ## `flake.nix`: the `hosts` attrset
@@ -35,25 +41,36 @@ machine, add one entry there plus a `hosts/<name>/disko.nix` (copy
 
 ## Local testing
 
-Two independent things to validate before anything touches real hardware:
+Fastest path: run everything at once before pushing —
+
+```bash
+./scripts/test-suite.sh              # every check, including both VM boots
+./scripts/test-suite.sh --skip-boot  # fast: eval/flake-check only, no QEMU
+```
+
+Or run the two boot-relevant checks individually:
 
 **1. Does the general config (packages, users, services) still evaluate
 and boot?**
 ```bash
-./scripts/deployment_local.sh
+./scripts/test-vm.sh
 ```
 Builds `.#vm-test`, boots it headlessly under QEMU, prints the SSH
-command to hop in.
+command to hop in (your own real key, via `modules/common.nix`).
 
 **2. Does a specific host's REAL disk layout (disko + ZFS + impermanence)
 still partition, format, and boot correctly?**
 ```bash
-bash scripts/testingmodule_disko.sh <hostname>
+bash scripts/test-disko.sh <hostname>
 ```
 Builds `.#<hostname>-disko-image` from that host's actual `disko.nix`,
 boots it under software-emulated QEMU (works on CI shared runners, no
-`/dev/kvm` needed), and passes/fails based on whether it actually reached
-a multi-user boot — not just whether `nix build` succeeded.
+`/dev/kvm` needed), and verifies success over SSH —
+`systemctl is-system-running --wait` — using a throwaway keypair
+committed at `modules/disko-test-ssh-key[.pub]` (works identically
+locally and in CI; unlocks nothing but this disposable image). Pass/fail
+is based on the machine actually reaching a running state, not just
+`nix build` succeeding.
 
 Note: this proves the disk layout is sound and boots. It does **not** by
 itself prove the impermanence rollback/persistence *behavior* is
@@ -72,7 +89,7 @@ re-run `agenix -e`/`ragenix -e` to re-encrypt for the expanded set.
 ## Provisioning real hardware
 
 ```bash
-scripts/provision_host.sh <hostname> root@<live-installer-ip>
+scripts/provision-host.sh <hostname> root@<live-installer-ip>
 ```
 
 One-shot install via `nixos-anywhere`: generates a hardware report with
@@ -86,5 +103,5 @@ the comments at the top of the script for the manual prerequisites
 Two stages in `.gitlab-ci.yml`:
 - **`build-config`** (fast, every push) — `nix build .#vm-test`.
 - **`disko-boot-test`** (slower, every push) — runs
-  `testingmodule_disko.sh` against every host in `flake.nix`'s `hosts`
+  `test-disko.sh` against every host in `flake.nix`'s `hosts`
   attrset automatically; adding a host needs no CI file changes.

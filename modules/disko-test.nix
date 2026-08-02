@@ -1,53 +1,73 @@
 { lib, modulesPath, ... }:
 {
   # ---------------------------------------------------------------------
-  # TEST-ONLY MODULE. Layered on top of a REAL host's hosts/<hostname>/
-  # disko.nix (see flake.nix's mkDiskoTest) purely to make that layout
-  # buildable as a disposable QEMU image. Never touches the real deploy
-  # for any host. Applies uniformly to every host in flake.nix's `hosts`
-  # attrset — nothing here is specific to any one machine's name.
+  # TEST-ONLY MODULE. Purpose changed from "boot-test this host's exact
+  # ZFS/multi-dataset layout" to "does the disko module correctly
+  # partition, format, and produce a working image at all" — we are NOT
+  # trying to validate the real partition scheme here, just that disko
+  # itself functions. A real host's own hosts/<hostname>/disko.nix stays
+  # completely untouched; this file overrides disko.devices entirely for
+  # the disposable test image only.
   #
-  # Each hosts/<hostname>/disko.nix typically has placeholder values
-  # (REPLACE_WITH_REAL_DISK, REPLACE_WITH_8_HEX_CHARS) until real
-  # hardware exists for that host — this file's `lib.mkForce` overrides
-  # let the test build run anyway, without needing fake values in the
-  # real disko.nix files.
+  # Bonus: dropping ZFS from this test also sidesteps a known disko/
+  # nixpkgs vmTools incompatibility with ZFS kernel modules in the
+  # image-builder VM (nix-community/disko#1114) — that bug only
+  # triggers when ZFS is present, so a plain ext4 layout never hits it.
+  #
+  # NOTE: plain assignment, not lib.mkForce — nothing else contributes to
+  # disko.devices here anymore (mkDiskoTest no longer imports the real
+  # host's disko.nix), so forcing the whole tree just collides with
+  # disko's own internal per-partition defaults instead of cleanly
+  # winning.
   # ---------------------------------------------------------------------
-
-  # qemu-guest.nix pulls in virtio drivers etc. so the image boots cleanly
-  # inside QEMU — real hardware doesn't need this, a live VM test does.
   imports = [ "${modulesPath}/profiles/qemu-guest.nix" ];
-
-  # Real hardware: an actual /dev/nvme0n1 or similar, with a real fixed size.
-  # Here: a virtual disk file that disko itself creates for the test image.
-  disko.devices.disk.main.device = lib.mkForce "/dev/vda";
-  disko.devices.disk.main.imageSize = "8G"; # only meaningful for image builds —
-                                              # real disks don't need a declared size
-  # Must be a real 8-hex-character value on the actual machine (see
-  # hosts/<hostname>/disko.nix comments) — this dummy is only for the
-  # throwaway test image and is never reused anywhere real.
+  disko.devices = {
+    disk.main = {
+      device = "/dev/vda";
+      type = "disk";
+      imageSize = "4G";
+      content = {
+        type = "gpt";
+        partitions = {
+          # EFI System Partition — required for the image to actually
+          # boot; not the thing under test, just plumbing to get there.
+          ESP = {
+            size = "256M";
+            type = "EF00";
+            content = {
+              type = "filesystem";
+              format = "vfat";
+              mountpoint = "/boot";
+            };
+          };
+          # The ONE partition this test actually cares about: does disko
+          # correctly create, format, and mount a filesystem at all.
+          root = {
+            size = "100%";
+            content = {
+              type = "filesystem";
+              format = "ext4";
+              mountpoint = "/";
+            };
+          };
+        };
+      };
+    };
+  };
   networking.hostId = lib.mkForce "deadbeef";
-
-  # Real hardware: the @blank snapshot must exist BEFORE first boot (see
-  # modules/impermanence.nix's comments — created manually during install).
-  # For this disposable test image there's no separate "install" step to
-  # hook into, so bootstrap it on first boot instead: if @blank doesn't
-  # exist yet, create it (this IS the equivalent moment, since nothing
-  # else writes to root between image build and first boot here); on
-  # every boot after that, actually roll back as normal. This only
-  # applies to the test image — real deploys keep requiring the manual
-  # snapshot step, since a real install DOES write files before reboot.
-  boot.initrd.systemd.services.zfs-rollback.script = lib.mkForce ''
-    if ! zfs list -t snapshot zroot/root@blank >/dev/null 2>&1; then
-      echo "TEST IMAGE: no @blank snapshot yet, creating one now (first boot only)"
-      zfs snapshot zroot/root@blank
-    else
-      zfs rollback -r zroot/root@blank
-    fi
-  '';
-
-  # No agenix/secrets wiring in any disko-test config (see flake.nix), so
-  # there's no real password to log in with — this just lets `root` in
-  # for anyone poking at the test image manually.
   users.users.root.initialPassword = "root";
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.consoleLogLevel = 7;
+  boot.kernelParams = [ "console=ttyS0,115200n8" "console=tty1" "boot.shell_on_fail" ];
+  # Throwaway keypair committed alongside this file (see
+  # disko-test-ssh-key[.pub]) — trusted in ADDITION to whatever real key
+  # modules/common.nix already grants homelabadmin, so scripts/test-disko.sh
+  # can SSH in and run `systemctl is-system-running --wait` to verify boot,
+  # both locally and in CI (which has no access to anyone's real private
+  # key). Only ever unlocks this disposable, self-destructing test image —
+  # never a real host.
+  users.users.homelabadmin.openssh.authorizedKeys.keyFiles = [
+    ./disko-test-ssh-key.pub
+  ];
 }

@@ -27,12 +27,12 @@ disko-boot-test:
   before_script:
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-    - nix profile install nixpkgs#qemu nixpkgs#jq
+    - nix profile install nixpkgs#qemu nixpkgs#jq nixpkgs#openssh
   script:
     - |
       HOSTS=$(nix eval --json .#hostNames | jq -r '.[]')
       for host in $HOSTS; do
         echo "=== Testing $host ==="
-        bash scripts/testingmodule_disko.sh "$host"
+        bash scripts/test-disko.sh "$host"
       done
   timeout: 90m

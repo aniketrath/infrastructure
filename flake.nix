@@ -5,7 +5,7 @@
   # stays fully reproducible until someone runs `nix flake update`.
   inputs = {
     # The package set and NixOS module collection everything else builds on.
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
 
     # agenix: lets us commit encrypted secrets (see secrets/) straight into
     # git and decrypt them on the target machine using its own SSH host key.
@@ -23,6 +23,9 @@
 
     # impermanence: the "erase your darlings" pattern — wipe root to a
     # blank snapshot every boot, keep only what's explicitly persisted.
+    # Used by real hosts only (see modules/impermanence.nix, wired in per
+    # host via the `hosts` attrset below) — the disposable disko-test
+    # image has no impermanence story, so mkDiskoTest never imports this.
     impermanence.url = "github:nix-community/impermanence";
 
     # nixos-facter: generates a hardware report (facter.json) by scanning a
@@ -65,37 +68,48 @@
 
       # Builds one REAL host's system closure.
       mkHost = hostname: { system ? "x86_64-linux", extraModules ? [ ] }:
+        let
+          facterPath = ./hosts/${hostname}/facter.json;
+          # Only wire up nixos-facter once that host's hardware report has
+          # actually been generated (scripts/provision-host.sh) and
+          # committed. Before then, evaluating this host would otherwise
+          # hard-fail on a nonexistent facter.json — including breaking
+          # `nix flake check` itself for every host until its hardware
+          # exists. builtins.pathExists checks the flake's git-tracked
+          # source, so this flips on automatically once facter.json is
+          # committed — nothing to toggle by hand.
+          hasFacter = builtins.pathExists facterPath;
+        in
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
             agenix.nixosModules.default
             disko.nixosModules.disko
             impermanence.nixosModules.impermanence
-            nixos-facter-modules.nixosModules.facter
             ./modules/common.nix   # shared packages/users/ssh, safe on any host
             ./modules/secrets.nix  # wires the agenix-encrypted admin password in
             ./hosts/${hostname}/disko.nix
-            # Hardware report for THIS host, generated on the real machine
-            # by scripts/provision-host.sh — doesn't exist until then.
-            { config.facter.reportPath = ./hosts/${hostname}/facter.json; }
-          ] ++ extraModules;
+          ]
+          ++ lib.optionals hasFacter [
+            nixos-facter-modules.nixosModules.facter
+            { config.facter.reportPath = facterPath; }
+          ]
+          ++ extraModules;
         };
 
-      # Builds a disposable, boot-testable image of a host's REAL disk
-      # layout (its actual hosts/<hostname>/disko.nix, ZFS pool,
-      # impermanence rollback — everything), for CI/local validation
-      # without needing that host's physical hardware. Only the
-      # device/hostId/password are overridden, via modules/disko-test.nix
-      # — one function shared by every host, not one block each.
+      # Builds a disposable, boot-testable image using disko — proves the
+      # disko module mechanism itself works (single ext4 partition, see
+      # modules/disko-test.nix), not that any specific host's real
+      # partition scheme is correct. Deliberately self-contained: does
+      # NOT import a host's real hosts/<hostname>/disko.nix (that used to
+      # collide with disko-test.nix's own partition definitions) and does
+      # NOT import impermanence (no rollback story in this test at all).
       mkDiskoTest = hostname: { system ? "x86_64-linux", ... }:
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
             disko.nixosModules.disko
-            impermanence.nixosModules.impermanence
             ./modules/common.nix
-            ./modules/impermanence.nix
-            ./hosts/${hostname}/disko.nix
             ./modules/disko-test.nix
           ];
         };

@@ -13,16 +13,25 @@
   # `nixos-rebuild build-vm` command. It's arguably a better test
   # anyway: a real init/boot instead of a container.
   # ---------------------------------------------------------------------
-
   networking.hostName = "automation-test"; # also determines the generated run script's
                                     # name: result/bin/run-vm-automation-test
+
+  # Dummy root fs + bootloader — not used by the actual VM boot (the
+  # built-in qemu-vm module overrides these at higher priority), but
+  # required to satisfy `nix flake check`, which evaluates
+  # system.build.toplevel and asserts both of these exist.
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "ext4";
+  };
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
   # Headless, passed straight through as a raw QEMU flag rather than via
   # virtualisation.graphics — that option's exact availability/behavior
   # has moved around across recent nixpkgs revisions, whereas passing
   # -nographic directly is stable regardless of which NixOS option wraps
   # it this month.
-
   virtualisation.diskSize = 2048;  # MB. Ephemeral: thrown away after every run,
                                     # never persisted anywhere.
 }

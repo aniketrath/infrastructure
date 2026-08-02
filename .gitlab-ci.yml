@@ -27,7 +27,7 @@ disko-boot-test:
   before_script:
     - mkdir -p ~/.config/nix
     - echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-    - nix profile install nixpkgs#qemu nixpkgs#jq nixpkgs#openssh
+    - nix profile install nixpkgs#qemu nixpkgs#jq
   script:
     - |
       HOSTS=$(nix eval --json .#hostNames | jq -r '.[]')

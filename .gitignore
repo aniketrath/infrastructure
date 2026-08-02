@@ -15,3 +15,7 @@ secrets/*.decrypted
 # editor/OS junk
 .DS_Store
 *.swp
+logs/
+*.qcow2
+*.raw
+flake.lock

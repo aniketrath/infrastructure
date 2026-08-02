@@ -1,6 +1,5 @@
 { lib, pkgs, ... }:
 {
-  networking.hostName = "ani-homelab-01";
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   users.users.root.shell = pkgs.zsh;

@@ -56,5 +56,5 @@
     iproute2 procps psmisc tree unzip zip cacert gnupg git qemu virt-manager virtiofsd
   ];
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  system.stateVersion = "24.05";
+  system.stateVersion = "26.05";
 }

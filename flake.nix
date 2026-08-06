@@ -117,6 +117,8 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
+            agenix.nixosModules.default
+            ./modules/secrets.nix
             disko.nixosModules.disko
             ./modules/common.nix
             ./modules/disko-test.nix
@@ -145,6 +147,8 @@
           vm-test = nixpkgs.lib.nixosSystem {
             system = ciSystem;
             modules = [
+              agenix.nixosModules.default
+              ./modules/secrets.nix
               ./modules/common.nix
               ./modules/vm-test.nix
             ];

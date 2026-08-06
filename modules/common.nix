@@ -1,8 +1,9 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 {
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   users.users.root.shell = pkgs.zsh;
+  nix.settings.trusted-users = [ "root" "homelabadmin" ];
 
 # virtualisation.docker.enable = true;
   boot.kernelModules = [ "kvm-amd" "kvm-intel" ];
@@ -19,12 +20,12 @@
       ovmf.packages = [ pkgs.OVMFFull.fd ]; # UEFI support
     };
   };
-
-
+  security.sudo.wheelNeedsPassword = false;
   users.users.homelabadmin = {
     isNormalUser = true;
     shell = pkgs.zsh;
     extraGroups = [ "wheel" "libvirtd" "kvm" "qemu" ];
+    hashedPasswordFile = config.age.secrets.homelabadmin-password.path;
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICcEPHCU24dDL+IxHMU8djT199vQWvwNOt2RL1enWabl aniketrath1121@gmail.com"
     ];

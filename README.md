@@ -158,12 +158,13 @@ nix run nixpkgs#ssh-to-age -- < ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key.pub
 ```
 
 ### 2. Updating `secrets/secrets.nix`
-Add your laptop's `age` key and the host's `age` key to `secrets/secrets.nix`:
+Add your laptop's `ssh-ed25519` public key and the host's `ssh-ed25519`
+public key directly to `secrets/secrets.nix`:
 
 ```nix
 let
-  laptop = "age1...";
-  archer = "age1...";
+  laptop = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICcEPHCU24dDL+IxHMU8djT199vQWvwNOt2RL1enWabl aniketrath1121@gmail.com";
+  archer = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB0ZzOIWo0+cYCOzSiyQIN+39xujvV4Gv8ai5X7QpQjz root@archer";
   allKeys = [ laptop archer ];
 in
 {
@@ -171,6 +172,14 @@ in
   "clusrercreds_k3s.age".publicKeys       = allKeys;
 }
 ```
+
+If you have a static SSH host key on your laptop, extract the public key with:
+
+```bash
+ssh-keygen -y -f ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key
+```
+
+Then paste the resulting `ssh-ed25519 ...` line into `secrets/secrets.nix`.
 
 ### 3. Creating & Encrypting Secrets
 From the root directory, navigate to `secrets/` and use `ragenix` along with `mkpasswd` or `openssl`:

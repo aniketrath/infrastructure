@@ -27,7 +27,7 @@
 
       OUT_DIR="$(mktemp -d)"
       HOME_DIR="/home/homelabadmin"
-      HOSTNAME_VAL="$(hostname)"
+      HOSTNAME_VAL="$(cat /etc/hostname)"
       HOST_KEY="$(cat /etc/ssh/ssh_host_ed25519_key.pub)"
 
       # --- Collect ---
@@ -53,7 +53,7 @@
         printf '%s\n\n' "On your laptop:"
         printf '    echo '"'"'%s'"'"' | ssh-to-age\n\n' "$HOST_KEY"
         printf '%s\n\n' "Paste the resulting age1... key into secrets/secrets.nix as a new entry, then re-encrypt:"
-        printf '    agenix -e secrets/usercreds_homelabadmin.age\n\n'
+        printf '    cd secrets && nix run nixpkgs#ragenix -- --rekey -i ~/.ssh/id_ed25519 && cd ..\n\n'
         printf '%s\n\n' "## 2. Commit hosts/''${HOSTNAME_VAL}/facter.json"
         printf '%s\n\n' "Already generated on your laptop by provision-host.sh — just needs committing:"
         printf '    git add hosts/%s/facter.json secrets/secrets.nix secrets/usercreds_homelabadmin.age\n' "$HOSTNAME_VAL"

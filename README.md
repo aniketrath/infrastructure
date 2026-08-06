@@ -16,7 +16,7 @@ format, and boot). Only after both pass does a change get merged and,
 eventually, deployed to a real machine — one-shot, via `nixos-anywhere`.
 
 The stack, and why each piece is here:
-- **NixOS**, pinned to the `nixos-25.05` **stable** release (not
+- **NixOS**, pinned to the `nixos-26.05` **stable** release (not
   `nixos-unstable`) — deliberately, after unstable broke this repo more
   than once mid-project (a QEMU option restructured under us, a
   disko/kernel-packaging incompatibility). Stable moves far less.
@@ -25,7 +25,7 @@ The stack, and why each piece is here:
 - **impermanence** — the "erase your darlings" pattern: root rolls back
   to a blank ZFS snapshot every boot; only explicitly persisted paths
   survive. Forces system state to genuinely live in this repo.
-- **agenix** — encrypted secrets committed straight into git, decrypted
+- **ragenix** — encrypted secrets committed straight into git, decrypted
   only by keys explicitly trusted per-host.
 - **nixos-facter** — scans a real machine's hardware into a report,
   instead of hand-writing `hardware-configuration.nix`.
@@ -36,35 +36,47 @@ The stack, and why each piece is here:
   specifically because k8s (via k3s as the lightweight on-ramp) is the
   explicit longer-term learning goal.
 
+## Recent updates
+This branch adds a more robust install workflow and first-boot automation:
+- `scripts/provision-host.sh` now supports an install step followed by a
+  `--post-deploy` step that fetches the host's SSH `ed25519` key,
+  rekeys `ragenix` secrets, and applies the final remote `nixos-rebuild`
+  switch.
+- `hosts/<name>/facter.json` is generated during install so hardware
+  can be committed and used in later host evaluations.
+- `modules/first-boot.nix` collects the newly provisioned machine's real
+  SSH host key, zpool/zfs status, and a `NEXT_STEPS.md` into the host's
+  home directory on first boot.
+
 ## Repo layout
 
 ```
 .
-├── flake.nix                    # single source of truth — see below
+├── flake.nix                     # single source of truth — see below
 ├── application/
-│   └── k3s.nix                  # the actual workload: k3s, single-node
+│   └── k3s.nix                   # the actual workload: k3s, single-node
 ├── modules/                      # SYSTEM-level config (not workloads)
 │   ├── common.nix                # shared packages/users/ssh — safe on any host
-│   ├── secrets.nix                # wires the agenix-encrypted admin password in
+│   ├── secrets.nix               # wires the ragenix-encrypted admin password in
 │   ├── impermanence.nix           # ZFS rollback-on-boot + explicit persistence
-│   ├── first-boot.nix              # one-time post-install data collection
-│   ├── vm-test.nix                 # TEST-ONLY: headless VM smoke test
-│   ├── disko-test.nix               # TEST-ONLY: disposable disk-image overrides
-│   └── disko-test-ssh-key[.pub]      # TEST-ONLY: throwaway keypair so
-│                                      # test-disko.sh can SSH into the
-│                                      # disposable image locally/in CI —
-│                                      # unlocks nothing but that image
+│   ├── first-boot.nix             # one-time post-install data collection
+│   ├── vm-test.nix                # TEST-ONLY: headless VM smoke test
+│   ├── disko-test.nix             # TEST-ONLY: disposable disk-image overrides
+│   └── disko-test-ssh-key[.pub]     # TEST-ONLY: throwaway keypair so
+│                                   # test-disko.sh can SSH into the
+│                                   # disposable image locally/in CI —
+│                                   # unlocks nothing but that image
 ├── hosts/
 │   ├── archer/disko.nix          # real disk layout for the archer host
 │   └── template/disko.nix         # starting point for adding a new host
 ├── secrets/
-│   ├── secrets.nix                # agenix recipients (who can decrypt what)
-│   └── *.age                       # encrypted secrets, safe to commit
+│   ├── secrets.nix                # ragenix recipients (who can decrypt what)
+│   └── *.age                      # encrypted secrets, safe to commit
 ├── scripts/
 │   ├── test-vm.sh                 # build + boot the vm-test image, print SSH cmd
-│   ├── test-disko.sh               # build + boot-test one host's real disk layout
-│   ├── test-suite.sh                # runs every local check, roughly in CI order
-│   └── provision-host.sh             # one-shot real install via nixos-anywhere
+│   ├── test-disko.sh              # build + boot-test one host's real disk layout
+│   ├── test-suite.sh              # runs every local check, roughly in CI order
+│   └── provision-host.sh           # one-shot real install via nixos-anywhere
 └── .gitlab-ci.yml
 ```
 
@@ -131,41 +143,101 @@ partitioning mechanism itself works, and the disk boots. What it does
 NOT prove: that archer's actual ZFS+impermanence design works — that
 still only gets genuinely validated by a real hardware install.
 
-## Secrets
+## Secrets Management & Host Keys (`ragenix`)
 
-Managed via [agenix](https://github.com/ryantm/agenix) — encrypted at
-rest in `secrets/*.age`, decrypted on the real machine using its own SSH
-host key.
+Managed via [ragenix](https://github.com/yosida95/ragenix) — encrypted at
+rest in `secrets/*.age`, decrypted on the real machine using a permanent static SSH host key.
 
-There are two, deliberately separate, `secrets.nix` files:
-- **`secrets/secrets.nix`** — read only by the `agenix`/`ragenix`
-  command-line tool, when you're authoring/updating a secret. Defines
-  WHO can decrypt WHAT (a recipients list of age-format public keys).
-- **`modules/secrets.nix`** — read by NixOS itself, at boot. Defines
-  WHAT the running system does with the decrypted result (wires it into
-  `homelabadmin`'s password).
+### 1. Generating a Static Host Key (Per Host)
+To prevent host keys from changing on every re-image, generate a dedicated static host key on your laptop and convert it to an `age` public key format:
 
-The age keys in `secrets/secrets.nix` are NOT new keys — they're your
-existing SSH keys, translated into `age`'s format with `ssh-to-age`
-(`ssh-to-age -i ~/.ssh/id_ed25519.pub` for yours; the same command run
-against `/etc/ssh/ssh_host_ed25519_key.pub` ON a real host for its own).
-Add a new host's converted key to the list, then re-encrypt:
 ```bash
-ragenix -e secrets/homelab-admin-password.age
+mkdir -p ~/.ssh/hosts/<hostname>
+ssh-keygen -t ed25519 -N "" -C "host-<hostname>" -f ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key
+nix run nixpkgs#ssh-to-age -- < ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key.pub
 ```
-One shared `.age` file for the whole fleet — you're not creating a new
-encrypted file per host, only growing the recipients list.
 
-## Provisioning real hardware
+### 2. Updating `secrets/secrets.nix`
+Add your laptop's `ssh-ed25519` public key and the host's `ssh-ed25519`
+public key directly to `secrets/secrets.nix`:
+
+```nix
+let
+  laptop = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICcEPHCU24dDL+IxHMU8djT199vQWvwNOt2RL1enWabl aniketrath1121@gmail.com";
+  archer = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB0ZzOIWo0+cYCOzSiyQIN+39xujvV4Gv8ai5X7QpQjz root@archer";
+  allKeys = [ laptop archer ];
+in
+{
+  "usercreds_homelabadmin.age".publicKeys = allKeys;
+  "clusrercreds_k3s.age".publicKeys       = allKeys;
+}
+```
+
+If you have a static SSH host key on your laptop, extract the public key with:
+
+```bash
+ssh-keygen -y -f ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key
+```
+
+Then paste the resulting `ssh-ed25519 ...` line into `secrets/secrets.nix`.
+
+### 3. Creating & Encrypting Secrets
+From the root directory, navigate to `secrets/` and use `ragenix` along with `mkpasswd` or `openssl`:
+
+```bash
+cd secrets
+
+# User password hash
+nix run nixpkgs#mkpasswd -- -m sha-512
+nix run nixpkgs#ragenix -- -e usercreds_homelabadmin.age -i ~/.ssh/id_ed25519
+
+# K3s token
+openssl rand -hex 16
+nix run nixpkgs#ragenix -- -e clusrercreds_k3s.age -i ~/.ssh/id_ed25519
+
+# If adding new hosts later, rekey all secrets:
+# nix run github:ryantm/agenix -- --rekey -i ~/.ssh/id_ed25519
+
+cd ..
+```
+
+### 4. Injecting Host Keys & Deploying Hardware
+1. Re-image or install NixOS on the host.
+2. Copy the static private host key onto the remote machine:
+
+```bash
+scp -P 2222 ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key homelabadmin@<HOST_IP>:/tmp/ssh_host_ed25519_key
+ssh -p 2222 homelabadmin@<HOST_IP> "sudo mv /tmp/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key && sudo chmod 600 /etc/ssh/ssh_host_ed25519_key && sudo systemctl restart sshd"
+```
+
+3. Commit secrets and trigger a nixos-rebuild deployment:
+
+```bash
+git add secrets/
+git commit -m "chore: update secrets and host keys"
+
+NIX_SSHOPTS="-p 2222" nix run nixpkgs#nixos-rebuild -- switch \
+  --flake .#<hostname> \
+  --target-host homelabadmin@<HOST_IP> \
+  --elevate=sudo
+```
+
+## Provisioning real hardware (Alternative via `nixos-anywhere`)
 
 ```bash
 scripts/provision-host.sh <hostname> root@<live-installer-ip>
 ```
 One-shot install via `nixos-anywhere`: generates the hardware report,
-partitions via that host's `disko.nix`, installs the closure, reboots
+partitions via that host's `disko.nix`, installs the closure, and reboots
 into it. See the comments at the top of the script for the manual
 prerequisites (real disk path, a real `hostId`) that need filling in per
 host before running it.
+
+After the install completes, finish the setup automatically with:
+
+```bash
+./provision-host.sh --post-deploy <hostname> <target-ip>
+```
 
 Right after this finishes, and before you do anything else on that
 machine: `modules/first-boot.nix`'s `first-boot-setup` service runs

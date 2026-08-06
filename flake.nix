@@ -55,21 +55,25 @@
       # nothing elsewhere in this flake assumes that specific name.
       # ----------------------------------------------------------------
       hosts = {
-        archer = {
-          extraModules = [
-            ./modules/impermanence.nix
-            ./modules/first-boot.nix
-            ./application/k3s.nix
-#           { myK3s.controlPlaneOnly = true; }
-          ];
-        };
+              archer = {
+                extraModules = [
+                  ./modules/impermanence.nix
+                  ./modules/first-boot.nix
+                  ./application/k3s.nix
+                  { myK3s.isFirstNode = true; }
+                  # { myK3s.controlPlaneOnly = true; }  # flip when other nodes exist
+                ];
+              };
 
-        # A second host is just another entry here:
-        # my-other-host = {
-        #   system = "aarch64-linux"; # e.g. a Raspberry Pi
-        #   extraModules = [ ];
-        # };
-      };
+              # A future second node joining archer's cluster:
+              # some-worker-node = {
+              #   extraModules = [
+              #     ./modules/impermanence.nix
+              #     ./application/k3s.nix
+              #     { myK3s.serverAddr = "https://archer:6443"; }
+              #   ];
+              # };
+            };
 
       # Builds one REAL host's system closure.
       mkHost = hostname: { system ? "x86_64-linux", extraModules ? [ ] }:

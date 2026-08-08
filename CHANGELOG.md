@@ -7,7 +7,7 @@
   `nixos-rebuild` switch.
 - Added `hosts/<name>/facter.json` hardware report generation on install
   to support per-host evaluation and commit-driven hardware-aware config.
-- Added first-boot collection via `modules/first-boot.nix`, producing
+- Added first-boot collection via `modules/core/first-boot.nix`, producing
   `~/first-boot-info.tar.gz` and `~/NEXT_STEPS.md` on the new host.
 - Updated secrets management to use native SSH host keys and a more
   explicit trust/rekey workflow.
@@ -17,8 +17,8 @@
 - Added new host disk definitions for `caster`, `lancer`, and `ruler`.
 
 ### Added
-- **`application/k3s.nix`** — first actual workload on the fleet: k3s, single-node to start (`role = "server"`), with a `myK3s.controlPlaneOnly` option (currently commented off for `archer`) to later mark a node control-plane-only once agents exist. k3s's own state (`/var/lib/rancher/k3s`) is added to `impermanence`'s persisted directories — without this, every reboot would wipe the whole cluster. New top-level `application/` directory, distinct from `modules/`: `modules/` is system-level plumbing (users, disks, secrets — the same regardless of purpose), `application/` is what the machine is actually FOR (workloads). Firewall opened for k3s's API port (6443) only — deliberately not etcd's ports (2379-2380), which only matter for multi-server HA, irrelevant for single-node's embedded sqlite backend.
-- **`modules/first-boot.nix`** — a one-shot systemd service, gated on a marker file under `/persist` (so it only ever runs once, surviving every subsequent rollback), that fires on the first real multi-user boot after install. Collects hostname, IP, SSH host key, ZFS pool/dataset/snapshot status, and disk usage into `~homelabadmin/first-boot-info.tar.gz`, and writes `NEXT_STEPS.md` with THIS host's real values already filled in — the exact `ssh-to-age`/`ragenix` commands to extend secrets trust, and the `git` commands to commit its hardware report. Replaces "remember to SSH in and run these commands" with "cat a file that already has them."
+- **`modules/services/k3s.nix`** — first actual workload on the fleet: k3s, single-node to start (`role = "server"`), with a `myK3s.controlPlaneOnly` option (currently commented off for `archer`) to later mark a node control-plane-only once agents exist. k3s's own state (`/var/lib/rancher/k3s`) is added to `impermanence`'s persisted directories — without this, every reboot would wipe the whole cluster. Workload config now lives under `modules/services/` instead of a top-level `application/` directory.
+- **`modules/core/first-boot.nix`** — a one-shot systemd service, gated on a marker file under `/persist` (so it only ever runs once, surviving every subsequent rollback), that fires on the first real multi-user boot after install. Collects hostname, IP, SSH host key, ZFS pool/dataset/snapshot status, and disk usage into `~homelabadmin/first-boot-info.tar.gz`, and writes `NEXT_STEPS.md` with THIS host's real values already filled in — the exact `ssh-to-age`/`ragenix` commands to extend secrets trust, and the `git` commands to commit its hardware report. Replaces "remember to SSH in and run these commands" with "cat a file that already has them."
 - **Post-Deployment Automation**: Added `--post-deploy` handler to `provision-host.sh` to automatically fetch host SSH keys, re-key secrets, and trigger final `nixos-rebuild` deployment.
 
 ### Changed

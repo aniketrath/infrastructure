@@ -55,25 +55,25 @@ This branch adds a more robust install workflow and first-boot automation:
 ├── flake.nix                     # single source of truth — see below
 ├── modules/                      # SYSTEM-level config (not workloads)
 │   ├── core/
+│   │   ├── auto-upgrade.nix      # auto-upgrade helper for system packages
 │   │   ├── common.nix            # shared packages/users/ssh — safe on any host
-│   │   ├── secrets.nix           # wires the ragenix-encrypted admin password in
+│   │   ├── first-boot.nix        # one-time post-install data collection
 │   │   ├── impermanence.nix      # ZFS rollback-on-boot + explicit persistence
-│   │   └── first-boot.nix        # one-time post-install data collection
+│   │   └── secrets.nix           # wires the ragenix-encrypted admin password in
 │   ├── services/
 │   │   └── k3s.nix               # the actual workload: k3s, single-node
 │   └── testing/
 │       ├── vm-test.nix           # TEST-ONLY: headless VM smoke test
 │       ├── disko-test.nix        # TEST-ONLY: disposable disk-image overrides
-│       └── disko-test-ssh-key[.pub]     # TEST-ONLY: throwaway keypair so
-│                                   # test-disko.sh can SSH into the
-│                                   # disposable image locally/in CI —
-│                                   # unlocks nothing but that image
 ├── tests/
 │   └── fixtures/
 │       ├── disko-test-ssh-key
 │       └── disko-test-ssh-key.pub
 ├── hosts/
 │   ├── archer/disko.nix          # real disk layout for the archer host
+│   ├── caster/disko.nix          # additional host disk layout
+│   ├── lancer/disko.nix          # additional host disk layout
+│   ├── ruler/disko.nix           # additional host disk layout
 │   └── template/disko.nix         # starting point for adding a new host
 ├── secrets/
 │   ├── secrets.nix                # ragenix recipients (who can decrypt what)

@@ -11,6 +11,10 @@
   `~/first-boot-info.tar.gz` and `~/NEXT_STEPS.md` on the new host.
 - Updated secrets management to use native SSH host keys and a more
   explicit trust/rekey workflow.
+- Reorganized module layout: moved host-independent config into
+  `modules/core/`, moved workload config into `modules/services/`, and
+  moved test-only support into `modules/testing/` / `tests/fixtures/`.
+- Added new host disk definitions for `caster`, `lancer`, and `ruler`.
 
 ### Added
 - **`application/k3s.nix`** — first actual workload on the fleet: k3s, single-node to start (`role = "server"`), with a `myK3s.controlPlaneOnly` option (currently commented off for `archer`) to later mark a node control-plane-only once agents exist. k3s's own state (`/var/lib/rancher/k3s`) is added to `impermanence`'s persisted directories — without this, every reboot would wipe the whole cluster. New top-level `application/` directory, distinct from `modules/`: `modules/` is system-level plumbing (users, disks, secrets — the same regardless of purpose), `application/` is what the machine is actually FOR (workloads). Firewall opened for k3s's API port (6443) only — deliberately not etcd's ports (2379-2380), which only matter for multi-server HA, irrelevant for single-node's embedded sqlite backend.

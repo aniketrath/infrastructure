@@ -44,7 +44,7 @@ This branch adds a more robust install workflow and first-boot automation:
   switch.
 - `hosts/<name>/facter.json` is generated during install so hardware
   can be committed and used in later host evaluations.
-- `modules/first-boot.nix` collects the newly provisioned machine's real
+- `modules/core/first-boot.nix` collects the newly provisioned machine's real
   SSH host key, zpool/zfs status, and a `NEXT_STEPS.md` into the host's
   home directory on first boot.
 
@@ -53,19 +53,25 @@ This branch adds a more robust install workflow and first-boot automation:
 ```
 .
 ├── flake.nix                     # single source of truth — see below
-├── application/
-│   └── k3s.nix                   # the actual workload: k3s, single-node
 ├── modules/                      # SYSTEM-level config (not workloads)
-│   ├── common.nix                # shared packages/users/ssh — safe on any host
-│   ├── secrets.nix               # wires the ragenix-encrypted admin password in
-│   ├── impermanence.nix           # ZFS rollback-on-boot + explicit persistence
-│   ├── first-boot.nix             # one-time post-install data collection
-│   ├── vm-test.nix                # TEST-ONLY: headless VM smoke test
-│   ├── disko-test.nix             # TEST-ONLY: disposable disk-image overrides
-│   └── disko-test-ssh-key[.pub]     # TEST-ONLY: throwaway keypair so
+│   ├── core/
+│   │   ├── common.nix            # shared packages/users/ssh — safe on any host
+│   │   ├── secrets.nix           # wires the ragenix-encrypted admin password in
+│   │   ├── impermanence.nix      # ZFS rollback-on-boot + explicit persistence
+│   │   └── first-boot.nix        # one-time post-install data collection
+│   ├── services/
+│   │   └── k3s.nix               # the actual workload: k3s, single-node
+│   └── testing/
+│       ├── vm-test.nix           # TEST-ONLY: headless VM smoke test
+│       ├── disko-test.nix        # TEST-ONLY: disposable disk-image overrides
+│       └── disko-test-ssh-key[.pub]     # TEST-ONLY: throwaway keypair so
 │                                   # test-disko.sh can SSH into the
 │                                   # disposable image locally/in CI —
 │                                   # unlocks nothing but that image
+├── tests/
+│   └── fixtures/
+│       ├── disko-test-ssh-key
+│       └── disko-test-ssh-key.pub
 ├── hosts/
 │   ├── archer/disko.nix          # real disk layout for the archer host
 │   └── template/disko.nix         # starting point for adding a new host
@@ -80,9 +86,9 @@ This branch adds a more robust install workflow and first-boot automation:
 └── .gitlab-ci.yml
 ```
 
-`application/` vs `modules/`: `modules/` is system-level plumbing
+`modules/core/` vs `modules/services/`: `modules/core/` is system-level plumbing
 (users, disks, secrets, the machine's own identity) — the same on every
-host regardless of what it's actually for. `application/` is what the
+host regardless of what it's actually for. `modules/services/` is what the
 machine is FOR — actual workloads like k3s. This split keeps "is this
 machine set up correctly" separate from "is this machine running the
 right software," which matters more once there's more than one workload.
@@ -119,7 +125,7 @@ Or run the two boot-relevant checks individually:
 ./scripts/test-vm.sh
 ```
 Builds `.#vm-test`, boots it headlessly under QEMU, prints the SSH
-command to hop in using your real key (`modules/common.nix`).
+command to hop in using your real key (`modules/core/common.nix`).
 
 **2. A specific host's REAL disk layout — does it partition, format, and boot?**
 ```bash
@@ -129,7 +135,7 @@ Builds `.#<hostname>-disko-image`, boots it under software-emulated QEMU
 (works without `/dev/kvm`, so it also runs on plain CI shared runners —
 just slower), verifies success over SSH (`systemctl is-system-running
 --wait`) using a throwaway keypair committed specifically for this
-(`modules/disko-test-ssh-key[.pub]` — unlocks nothing but this
+(`tests/fixtures/disko-test-ssh-key[.pub]` — unlocks nothing but this
 disposable image). Pass/fail is based on the machine actually reaching a
 running state, not just `nix build` succeeding.
 
@@ -219,7 +225,7 @@ git commit -m "chore: update secrets and host keys"
 NIX_SSHOPTS="-p 2222" nix run nixpkgs#nixos-rebuild -- switch \
   --flake .#<hostname> \
   --target-host homelabadmin@<HOST_IP> \
-  --elevate=sudo
+  --use-remote-sudo
 ```
 
 ## Provisioning real hardware (Alternative via `nixos-anywhere`)
@@ -240,7 +246,7 @@ After the install completes, finish the setup automatically with:
 ```
 
 Right after this finishes, and before you do anything else on that
-machine: `modules/first-boot.nix`'s `first-boot-setup` service runs
+machine: `modules/core/first-boot.nix`'s `first-boot-setup` service runs
 automatically, once, on the first real boot — it collects the host's
 SSH key, ZFS pool status, and disk info into
 `~homelabadmin/first-boot-info.tar.gz`, and writes a `NEXT_STEPS.md`
@@ -253,6 +259,26 @@ Note: the impermanence rollback service is self-bootstrapping — it
 creates the `@blank` snapshot itself, automatically, on that same first
 boot. There's no longer a manual "snapshot before the first reboot"
 race to worry about.
+
+### ZFS Impermanence & Rollback Setup
+
+#### Enable Systemd Initrd [Already enabled for now, Optional as per use case]
+If you are using the ZFS root rollback feature for impermanence, ensure that systemd is explicitly enabled inside the initrd. Without this flag, NixOS will use the legacy initrd setup and **silently ignore** any custom systemd services required to execute the rollback.
+
+Add this configuration to your base system settings or impermanence module:
+
+```nix
+{
+  boot.initrd.systemd.enable = true;
+}
+```
+**A Quick Tip for Future Maintenance**
+If you ever intentionally change or update things directly inside the root filesystem (though with impermanence, you generally won't need to, since most config is in Nix and state is in /persist), those changes will disappear on reboot. If you ever want to update your baseline @blank snapshot to include new foundational layout changes, you would manually destroy the old snapshot and take a new one:
+``` bash
+# Optional: Only if you want to update your baseline state
+sudo zfs destroy zroot/root@blank
+sudo zfs snapshot zroot/root@blank
+```
 
 ## CI/CD
 

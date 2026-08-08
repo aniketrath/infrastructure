@@ -1,7 +1,7 @@
 {
   networking.hostName = "archer";
   networking.domain = "homelab";
-  networking.hostId = "32b1ced8";
+  networking.hostId = "3b2080cc";
 
   disko.devices = {
     disk.main = {

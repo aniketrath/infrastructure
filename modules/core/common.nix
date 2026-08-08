@@ -17,6 +17,36 @@
     experimental-features = [ "nix-command" "flakes" ];
     trusted-users = [ "root" "homelabadmin" ];
   };
+  # Systemd Journal Configuration
+  services.journald.extraConfig = ''
+    Storage=persistent
+    SystemMaxUse=4G
+    SystemKeepFree=20%
+    MaxRetentionSec=14day
+    Compress=yes
+  '';
+  # 2. Non-Journald Log Rotation (Plain Text Logs)
+  services.logrotate = {
+    enable = true;
+    settings = {
+    # Default global settings for all log rotations
+      header = {
+        global = true;
+        dateext = true;
+        compress = true;
+        delaycompress = true;
+        missingok = true;
+        notifempty = true;
+      };
+
+    # Rule for raw text logs in /var/log
+      "/var/log/*.log" = {
+        frequency = "daily";
+        rotate = 7;
+        maxsize = "50M";
+      };
+    };
+  };
 
   system.stateVersion = "26.05";
   environment.enableAllTerminfo = true;

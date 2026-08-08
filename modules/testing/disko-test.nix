@@ -67,7 +67,7 @@
   # both locally and in CI (which has no access to anyone's real private
   # key). Only ever unlocks this disposable, self-destructing test image —
   # never a real host.
-  users.users.homelabadmin.openssh.authorizedKeys.keyFiles = [
-    ./disko-test-ssh-key.pub
+  users.users.root.openssh.authorizedKeys.keyFiles = [
+    ../../tests/fixtures/disko-test-ssh-key.pub
   ];
 }

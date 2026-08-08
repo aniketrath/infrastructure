@@ -8,7 +8,7 @@
   #   head -c4 /dev/urandom | od -A none -t x4 | tr -d ' '
   # Must stay stable for this machine forever once set — changing it
   # after data exists on the pool can make ZFS refuse to import it.
-  networking.hostId = "REPLACE_WITH_8_HEX_CHARS";
+  networking.hostId = builtins.substring 0 8 (builtins.hashString "sha256" config.networking.hostName);
 
   disko.devices = {
     disk.main = {

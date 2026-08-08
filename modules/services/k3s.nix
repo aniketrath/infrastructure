@@ -30,9 +30,6 @@
         message = "application/k3s.nix: this host must set either myK3s.isFirstNode = true, or myK3s.serverAddr pointing at the first node.";
       }
     ];
-    # Shared cluster join secret — same ciphertext decrypts identically
-    # on every node (see secrets/secrets.nix: clusrercreds_k3s.age is encrypted
-    # for every cluster node's key, not just one host).
     services.k3s = lib.mkMerge [
       {
         enable = true;
@@ -47,7 +44,12 @@
         serverAddr = config.myK3s.serverAddr;
       })
     ];
-    networking.firewall.allowedTCPPorts = [ 6443 10250 ];
+    networking.firewall.allowedTCPPorts = [
+        6443  # Kubernetes API
+        2379  # etcd client requests
+        2380  # etcd peer communications
+        10250 # Kubelet metrics/logs
+      ];
     networking.firewall.allowedUDPPorts = [ 8472 ];
     environment.persistence."/persist".directories = [
       "/var/lib/rancher/k3s"

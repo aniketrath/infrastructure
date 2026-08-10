@@ -45,12 +45,15 @@
       })
     ];
     networking.firewall.allowedTCPPorts = [
+        80    # Ingress HTTP
+        443   # Ingress HTTPS
         6443  # Kubernetes API
         2379  # etcd client requests
         2380  # etcd peer communications
         10250 # Kubelet metrics/logs
       ];
     networking.firewall.allowedUDPPorts = [ 8472 ];
+    networking.firewall.allowedTCPPortRanges = [ { from = 30000; to = 32767; }];
     environment.persistence."/persist".directories = [
       "/var/lib/rancher/k3s"
     ];

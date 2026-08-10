@@ -90,6 +90,7 @@
     };
   };
 
+  services.tailscale.enable = true;
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -105,7 +106,7 @@
   environment.systemPackages = with pkgs; [
     curl wget eza bat jdk21_headless traceroute bind nettools iputils glances lsof
     strace tcpdump ncdu jq iproute2 procps psmisc tree unzip zip cacert gnupg git
-    qemu virt-manager virtiofsd
+    qemu virt-manager virtiofsd kubernetes-helm gnumake git tailscale         # Secure mesh access
   ];
 
   # Zsh Shell Configuration

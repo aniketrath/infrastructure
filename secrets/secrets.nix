@@ -11,5 +11,5 @@ let
 in
 {
   "usercreds_homelabadmin.age".publicKeys = adminKeys;
-  "clusrercreds_k3s.age".publicKeys = tokenKeys;
+  "clustercreds_k3s.age".publicKeys = tokenKeys;
 }

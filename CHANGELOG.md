@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026-08-10] - fix: k3s networking and secrets update
+
+- Fixed `modules/services/k3s.nix` networking configuration to correct service
+  agent/control-plane connectivity and address handling.
+- Updated `secrets/secrets.nix` to clarify key formats and rekey workflow.
+
 ## [2026-08-06] - k3s workload, automated first-boot setup
 
 - Added `scripts/provision-host.sh` post-deploy mode to fetch the host's

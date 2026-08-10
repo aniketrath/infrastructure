@@ -19,3 +19,4 @@ logs/
 *.qcow2
 *.raw
 flake.lock
+.vscode

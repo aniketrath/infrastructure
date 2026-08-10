@@ -19,6 +19,7 @@
     let
       lib = nixpkgs.lib;
       ciSystem = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${ciSystem};
 
       # Central list of physical/virtual hosts and host-specific options
       # # { myK3s.controlPlaneOnly = true; }  # flip when other nodes exist
@@ -67,6 +68,16 @@
         };
     in
     {
+      # Development shell for VSCode / direnv
+      devShells.${ciSystem}.default = pkgs.mkShell {
+        name = "stackcraft-infra-shell";
+        packages = [
+          agenix.packages.${ciSystem}.default
+          pkgs.git
+          pkgs.nixpkgs-fmt
+        ];
+      };
+
       # Exported NixOS system configurations
       nixosConfigurations =
         # Real production host systems

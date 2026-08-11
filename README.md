@@ -212,8 +212,8 @@ cd ..
 2. Copy the static private host key onto the remote machine:
 
 ```bash
-scp -P 2222 ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key homelabadmin@<HOST_IP>:/tmp/ssh_host_ed25519_key
-ssh -p 2222 homelabadmin@<HOST_IP> "sudo mv /tmp/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key && sudo chmod 600 /etc/ssh/ssh_host_ed25519_key && sudo systemctl restart sshd"
+scp ~/.ssh/hosts/<hostname>/ssh_host_ed25519_key homelabadmin@<HOST_IP>:/tmp/ssh_host_ed25519_key
+ssh homelabadmin@<HOST_IP> "sudo mv /tmp/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key && sudo chmod 600 /etc/ssh/ssh_host_ed25519_key && sudo systemctl restart sshd"
 ```
 
 3. Commit secrets and trigger a nixos-rebuild deployment:
@@ -222,7 +222,7 @@ ssh -p 2222 homelabadmin@<HOST_IP> "sudo mv /tmp/ssh_host_ed25519_key /etc/ssh/s
 git add secrets/
 git commit -m "chore: update secrets and host keys"
 
-NIX_SSHOPTS="-p 2222" nix run nixpkgs#nixos-rebuild -- switch \
+nix run nixpkgs#nixos-rebuild -- switch \
   --flake .#<hostname> \
   --target-host homelabadmin@<HOST_IP> \
   --use-remote-sudo

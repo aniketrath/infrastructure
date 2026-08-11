@@ -2,13 +2,13 @@
 
 {
   # Boot settings
-  boot.loader.systemd-boot.configurationLimit = 3;
+  boot.loader.systemd-boot.configurationLimit = 2;
 
   # Nix Store & GC settings
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 7d";
+    options = "--delete-older-than 14d";
   };
   nix.settings.auto-optimise-store = true;
 
@@ -83,7 +83,7 @@
   # Services (SSH & Avahi)
   services.openssh = {
     enable = true;
-    ports = [ 2222 ];
+    ports = [ 22 ];
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "no";
@@ -106,7 +106,7 @@
   environment.systemPackages = with pkgs; [
     curl wget eza bat jdk21_headless traceroute bind nettools iputils glances lsof
     strace tcpdump ncdu jq iproute2 procps psmisc tree unzip zip cacert gnupg git
-    qemu virt-manager virtiofsd kubernetes-helm gnumake git tailscale         # Secure mesh access
+    qemu virt-manager virtiofsd kubernetes-helm gnumake git tailscale
   ];
 
   # Zsh Shell Configuration

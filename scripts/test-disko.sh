@@ -18,8 +18,7 @@ set -euo pipefail
 # `./test-disko.sh --debug archer` — shell tracing + full nix
 # build logs.
 
-SSH_PORT=2223  # deliberately different from test-vm.sh's 2222, so both
-                # can run concurrently without colliding.
+SSH_PORT=2223  # deliberately different from test-vm.sh's 2222, so both can run concurrently without colliding.
 SSH_USER="homelabadmin"
 BOOT_TIMEOUT=180
 

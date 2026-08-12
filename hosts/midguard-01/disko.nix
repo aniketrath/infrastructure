@@ -1,11 +1,11 @@
 {
-  networking.hostName = "archer";
+  networking.hostName = "midguard-01";
   networking.domain = "homelab";
   networking.hostId = "3b2080cc";
 
   disko.devices = {
     disk.main = {
-      device = "/dev/sda";
+      device = "/dev/nvme0n1";
       type = "disk";
       content = {
         type = "gpt";

@@ -24,10 +24,10 @@
       # Central list of physical/virtual hosts and host-specific options
       # # { myK3s.controlPlaneOnly = true; }  # flip when other nodes exist
       hosts = {
-        archer = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.isFirstNode = true; } ]; };
-        lancer = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://archer.local:6443"; } ]; };
-        ruler = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://archer.local:6443"; } ]; };
-        caster = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://archer.local:6443"; } ]; };
+        midguard-01 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.isFirstNode = true; } ]; };
+        midguard-02 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://midguard-01.local:6443"; } ]; };
+        midguard-03 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://midguard-01.local:6443"; } ]; };
+        midguard-04 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://midguard-01.local:6443"; } ]; };
       };
 
       # Builder function for production host system closures

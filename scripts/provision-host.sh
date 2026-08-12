@@ -7,6 +7,9 @@ set -euo pipefail
 #   Install:      ./provision-host.sh archer root@192.168.1.50
 #   Post-deploy:  ./provision-host.sh --post-deploy archer 192.168.1.5
 #   Debug mode:   DEBUG=1 ./provision-host.sh ... or ./provision-host.sh --debug ...
+#
+# Env overrides:
+#   SSH_PORT=22   Port used to reach the target host during post-deploy (default: 22)
 
 # ANSI Color Definitions
 RED='\033[0;31m'
@@ -19,6 +22,7 @@ NC='\033[0m' # No Color
 
 DEBUG="${DEBUG:-0}"
 POST_DEPLOY=0
+SSH_PORT="${SSH_PORT:-22}"
 ARGS=()
 
 for arg in "$@"; do
@@ -49,7 +53,7 @@ if [[ "$POST_DEPLOY" == "1" ]]; then
   HOST="$1"
   TARGET_IP="$2"
 
-  echo -e "${BLUE}${BOLD}==> Running post-deployment automation for ${HOST} at ${TARGET_IP}...${NC}"
+  echo -e "${BLUE}${BOLD}==> Running post-deployment automation for ${HOST} at ${TARGET_IP} (port ${SSH_PORT})...${NC}"
 
   # 1. Commit facter.json if it exists and is untracked/changed
   if [[ -f "hosts/${HOST}/facter.json" ]]; then
@@ -63,16 +67,18 @@ if [[ "$POST_DEPLOY" == "1" ]]; then
   fi
 
   # 2. Extract SSH host public key from the newly provisioned node
-  echo -e "${BLUE}==> Fetching new host's SSH ed25519 public key...${NC}"
-  SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=5"
+  echo -e "${BLUE}==> Fetching new host's SSH ed25519 public key (port ${SSH_PORT})...${NC}"
+  SSH_OPTS="-p ${SSH_PORT} -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5"
   REMOTE_PUBKEY=""
 
   if REMOTE_PUBKEY=$(ssh $SSH_OPTS homelabadmin@$TARGET_IP 'cat /etc/ssh/ssh_host_ed25519_key.pub' 2>/dev/null); then
-    PORT=22
+    :
   elif REMOTE_PUBKEY=$(ssh $SSH_OPTS root@$TARGET_IP 'cat /etc/ssh/ssh_host_ed25519_key.pub' 2>/dev/null); then
-    PORT=22
+    :
   else
-    echo -e "${RED}ERROR: Could not fetch SSH host key from ${TARGET_IP}. Is the machine up and accessible?${NC}" >&2
+    echo -e "${RED}ERROR: Could not fetch SSH host key from ${TARGET_IP} on port ${SSH_PORT}.${NC}" >&2
+    echo -e "${YELLOW}       Is the machine up and accessible? If it's on a non-default port,${NC}" >&2
+    echo -e "${YELLOW}       re-run with SSH_PORT=<port> ./provision-host.sh --post-deploy ...${NC}" >&2
     exit 1
   fi
 
@@ -90,16 +96,28 @@ if [[ "$POST_DEPLOY" == "1" ]]; then
     exit 1
   fi
 
-  # 3. Rekey secrets
+  # 2b. Validate secrets.nix parses before attempting to rekey against it
+  echo -e "${BLUE}==> Validating secrets/secrets.nix syntax...${NC}"
+  if ! nix-instantiate --parse secrets/secrets.nix > /dev/null; then
+    echo -e "${RED}ERROR: secrets/secrets.nix failed to parse. Fix the syntax error above before continuing.${NC}" >&2
+    exit 1
+  fi
+
+  # 3. Rekey secrets — abort on failure instead of silently deploying stale secrets
   echo -e "${BLUE}==> Re-keying agenix secrets...${NC}"
-  (
+  if ! (
     cd secrets
     RULES="./secrets.nix" nix run github:ryantm/agenix -- --rekey
-  )
+  ); then
+    echo -e "${RED}${BOLD}ERROR: Rekey failed — aborting before deploy.${NC}" >&2
+    echo -e "${YELLOW}       Fix secrets/secrets.nix and re-run this command.${NC}" >&2
+    exit 1
+  fi
+  echo -e "${GREEN}==> Rekey succeeded.${NC}"
 
   # 4. Push final deployment switch
-  echo -e "${BLUE}==> Applying final nixos-rebuild switch to ${HOST}...${NC}"
-  NIX_SSHOPTS="-p ${PORT} -i ~/.ssh/id_ed25519" nix run nixpkgs#nixos-rebuild -- switch \
+  echo -e "${BLUE}==> Applying final nixos-rebuild switch to ${HOST} (port ${SSH_PORT})...${NC}"
+  NIX_SSHOPTS="-p ${SSH_PORT} -i ~/.ssh/id_ed25519" nix run nixpkgs#nixos-rebuild -- switch \
     --flake ".#${HOST}" \
     --target-host "homelabadmin@${TARGET_IP}" \
     --use-remote-sudo

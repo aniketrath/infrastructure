@@ -1,5 +1,5 @@
 {
-  networking.hostName = "archer";
+  networking.hostName = "midguard-04";
   networking.domain = "homelab";
   networking.hostId = "fac6e589";
 

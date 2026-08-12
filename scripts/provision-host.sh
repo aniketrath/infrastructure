@@ -67,9 +67,9 @@ if [[ "$POST_DEPLOY" == "1" ]]; then
   SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=5"
   REMOTE_PUBKEY=""
 
-  if REMOTE_PUBKEY=$(ssh -p 2222 $SSH_OPTS homelabadmin@$TARGET_IP 'cat /etc/ssh/ssh_host_ed25519_key.pub' 2>/dev/null); then
-    PORT=2222
-  elif REMOTE_PUBKEY=$(ssh -p 22 $SSH_OPTS root@$TARGET_IP 'cat /etc/ssh/ssh_host_ed25519_key.pub' 2>/dev/null); then
+  if REMOTE_PUBKEY=$(ssh $SSH_OPTS homelabadmin@$TARGET_IP 'cat /etc/ssh/ssh_host_ed25519_key.pub' 2>/dev/null); then
+    PORT=22
+  elif REMOTE_PUBKEY=$(ssh $SSH_OPTS root@$TARGET_IP 'cat /etc/ssh/ssh_host_ed25519_key.pub' 2>/dev/null); then
     PORT=22
   else
     echo -e "${RED}ERROR: Could not fetch SSH host key from ${TARGET_IP}. Is the machine up and accessible?${NC}" >&2

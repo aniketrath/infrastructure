@@ -27,8 +27,8 @@
     },
     "bluetooth": [
       {
-        "index": 35,
-        "attached_to": 39,
+        "index": 34,
+        "attached_to": 38,
         "class_list": [
           "usb",
           "bluetooth"
@@ -111,8 +111,8 @@
         "module_alias": "usb:v8087p0A2Bd0010dcE0dsc01dp01icE0isc01ip01in01"
       },
       {
-        "index": 40,
-        "attached_to": 39,
+        "index": 39,
+        "attached_to": 38,
         "class_list": [
           "usb",
           "bluetooth"
@@ -331,7 +331,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 21,
+        "index": 20,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -569,8 +569,8 @@
     ],
     "disk": [
       {
-        "index": 32,
-        "attached_to": 27,
+        "index": 31,
+        "attached_to": 26,
         "class_list": [
           "disk",
           "usb",
@@ -660,7 +660,7 @@
         "module_alias": "usb:v346Dp5678d0200dc00dsc00dp00ic08isc06ip50in00"
       },
       {
-        "index": 33,
+        "index": 32,
         "attached_to": 12,
         "class_list": [
           "disk",
@@ -738,7 +738,7 @@
     ],
     "graphics_card": [
       {
-        "index": 26,
+        "index": 25,
         "attached_to": 0,
         "class_list": [
           "graphics_card",
@@ -823,8 +823,8 @@
     ],
     "hub": [
       {
-        "index": 39,
-        "attached_to": 27,
+        "index": 38,
+        "attached_to": 26,
         "class_list": [
           "usb",
           "hub"
@@ -910,8 +910,8 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 42,
-        "attached_to": 27,
+        "index": 41,
+        "attached_to": 26,
         "class_list": [
           "usb",
           "hub"
@@ -989,8 +989,8 @@
     ],
     "keyboard": [
       {
-        "index": 38,
-        "attached_to": 39,
+        "index": 37,
+        "attached_to": 38,
         "class_list": [
           "keyboard",
           "usb"
@@ -1091,8 +1091,8 @@
         "module_alias": "usb:v413Cp2107d0178dc00dsc00dp00ic03isc01ip01in00"
       },
       {
-        "index": 43,
-        "attached_to": 39,
+        "index": 42,
+        "attached_to": 38,
         "class_list": [
           "keyboard",
           "usb"
@@ -1221,8 +1221,8 @@
     ],
     "monitor": [
       {
-        "index": 29,
-        "attached_to": 26,
+        "index": 28,
+        "attached_to": 25,
         "class_list": [
           "monitor"
         ],
@@ -1363,8 +1363,8 @@
     ],
     "mouse": [
       {
-        "index": 36,
-        "attached_to": 39,
+        "index": 35,
+        "attached_to": 38,
         "class_list": [
           "mouse",
           "usb"
@@ -1471,8 +1471,8 @@
         "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc00ip00in03"
       },
       {
-        "index": 37,
-        "attached_to": 39,
+        "index": 36,
+        "attached_to": 38,
         "class_list": [
           "mouse",
           "usb"
@@ -1579,7 +1579,7 @@
         "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc01ip02in01"
       },
       {
-        "index": 47,
+        "index": 46,
         "attached_to": 0,
         "bus_type": {
           "hex": "0086",
@@ -1608,7 +1608,7 @@
         },
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.3/0003:046D:C548.0005/input/input10",
         "unix_device_names": [
-          "/dev/input/event6",
+          "/dev/input/event9",
           "/dev/input/ + handler"
         ]
       }
@@ -1672,7 +1672,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 54
+            "address": 99
           },
           {
             "type": "phwaddr",
@@ -1780,7 +1780,7 @@
         "module_alias": "pci:v00008086d000024FDsv00008086sd00000010bc02sc80i00"
       },
       {
-        "index": 25,
+        "index": 24,
         "attached_to": 0,
         "class_list": [
           "network_controller",
@@ -1864,7 +1864,7 @@
     ],
     "network_interface": [
       {
-        "index": 44,
+        "index": 43,
         "attached_to": 0,
         "class_list": [
           "network_interface"
@@ -1886,8 +1886,49 @@
         ]
       },
       {
+        "index": 44,
+        "attached_to": 19,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/wlp1s0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.0/0000:01:00.0",
+        "unix_device_names": [
+          "wlp1s0"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 99
+          },
+          {
+            "type": "phwaddr",
+            "address": 51
+          }
+        ],
+        "driver": "iwlwifi",
+        "driver_module": "iwlwifi",
+        "drivers": [
+          "iwlwifi"
+        ],
+        "driver_modules": [
+          "iwlwifi"
+        ]
+      },
+      {
         "index": 45,
-        "attached_to": 25,
+        "attached_to": 24,
         "class_list": [
           "network_interface"
         ],
@@ -1924,47 +1965,6 @@
         ],
         "driver_modules": [
           "e1000e"
-        ]
-      },
-      {
-        "index": 46,
-        "attached_to": 19,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/wlp1s0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.0/0000:01:00.0",
-        "unix_device_names": [
-          "wlp1s0"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 54
-          },
-          {
-            "type": "phwaddr",
-            "address": 51
-          }
-        ],
-        "driver": "iwlwifi",
-        "driver_module": "iwlwifi",
-        "drivers": [
-          "iwlwifi"
-        ],
-        "driver_modules": [
-          "iwlwifi"
         ]
       }
     ],
@@ -2226,7 +2226,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 22,
+        "index": 21,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2295,7 +2295,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 23,
+        "index": 22,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2378,7 +2378,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 24,
+        "index": 23,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2447,7 +2447,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 28,
+        "index": 27,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2523,76 +2523,6 @@
         ],
         "module_alias": "pci:v00008086d00009D23sv00008086sd00002070bc0Csc05i00",
         "label": "Onboard - Other"
-      }
-    ],
-    "sound": [
-      {
-        "index": 20,
-        "attached_to": 0,
-        "class_list": [
-          "sound",
-          "pci"
-        ],
-        "bus_type": {
-          "hex": "0004",
-          "name": "PCI",
-          "value": 4
-        },
-        "slot": {
-          "bus": 0,
-          "number": 31
-        },
-        "base_class": {
-          "hex": "0004",
-          "name": "Multimedia controller",
-          "value": 4
-        },
-        "sub_class": {
-          "hex": "0003",
-          "value": 3
-        },
-        "vendor": {
-          "hex": "8086",
-          "name": "Intel Corporation",
-          "value": 32902
-        },
-        "sub_vendor": {
-          "hex": "8086",
-          "name": "Intel Corporation",
-          "value": 32902
-        },
-        "device": {
-          "hex": "9d71",
-          "value": 40305
-        },
-        "sub_device": {
-          "hex": "2070",
-          "value": 8304
-        },
-        "revision": {
-          "hex": "0021",
-          "value": 33
-        },
-        "model": "Intel Multimedia controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1f.3",
-        "sysfs_bus_id": "0000:00:1f.3",
-        "detail": {
-          "function": 3,
-          "command": 1030,
-          "header_type": 0,
-          "secondary_bus": 0,
-          "prog_if": 0
-        },
-        "driver": "snd_hda_intel",
-        "driver_module": "snd_hda_intel",
-        "drivers": [
-          "snd_hda_intel"
-        ],
-        "driver_modules": [
-          "snd_hda_intel"
-        ],
-        "module_alias": "pci:v00008086d00009D71sv00008086sd00002070bc04sc03i00",
-        "label": "Onboard - Sound"
       }
     ],
     "storage_controller": [
@@ -2697,7 +2627,7 @@
     },
     "unknown": [
       {
-        "index": 30,
+        "index": 29,
         "attached_to": 0,
         "class_list": [
           "unknown"
@@ -2737,7 +2667,7 @@
         ]
       },
       {
-        "index": 31,
+        "index": 30,
         "attached_to": 0,
         "class_list": [
           "unknown"
@@ -2779,8 +2709,8 @@
     ],
     "usb": [
       {
-        "index": 41,
-        "attached_to": 39,
+        "index": 40,
+        "attached_to": 38,
         "class_list": [
           "usb",
           "unknown"
@@ -2872,7 +2802,7 @@
     ],
     "usb_controller": [
       {
-        "index": 27,
+        "index": 26,
         "attached_to": 0,
         "class_list": [
           "usb_controller",
@@ -3168,7 +3098,7 @@
         ]
       },
       {
-        "handle": 92,
+        "handle": 91,
         "name": "$MEI",
         "handles": [
           0
@@ -3177,7 +3107,7 @@
     ],
     "language": [
       {
-        "handle": 91,
+        "handle": 90,
         "languages": [
           "en|US|iso8859-1"
         ]

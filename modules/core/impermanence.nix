@@ -2,7 +2,7 @@
 {
   boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.forceImportRoot = false;
-  # CRITICAL: Enable systemd in initrd so zfs-rollback actually runs!
+
   boot.initrd.systemd.enable = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -31,8 +31,13 @@
       "/var/lib/nixos"
       "/var/log"
       "/var/lib/systemd/coredump"
-      "/home/homelabadmin"
-      "/root/.kube"
+      {
+        directory = "/home/homelabadmin";
+        user = "homelabadmin";
+        group = "users";
+        mode = "0700";
+      }
+      "/root"
     ];
     files = [
       "/etc/machine-id"
@@ -40,6 +45,7 @@
       "/etc/ssh/ssh_host_ed25519_key.pub"
       "/etc/ssh/ssh_host_rsa_key"
       "/etc/ssh/ssh_host_rsa_key.pub"
+      "/root/.kube"
     ];
   };
 }

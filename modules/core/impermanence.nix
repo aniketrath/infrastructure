@@ -3,12 +3,9 @@
   boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.forceImportRoot = false;
 
-  # CRITICAL: Enable systemd in initrd so zfs-rollback actually runs!
   boot.initrd.systemd.enable = true;
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
   boot.initrd.systemd.services.zfs-rollback = {
     description = "Roll back root dataset to blank snapshot";
     wantedBy = [ "initrd.target" ];
@@ -26,9 +23,7 @@
       fi
     '';
   };
-
   fileSystems."/persist".neededForBoot = true;
-
   environment.persistence."/persist" = {
     hideMounts = true;
     directories = [
@@ -36,6 +31,13 @@
       "/var/lib/nixos"
       "/var/log"
       "/var/lib/systemd/coredump"
+      {
+        directory = "/home/homelabadmin";
+        user = "homelabadmin";
+        group = "users";
+        mode = "0700";
+      }
+      "/root"
     ];
     files = [
       "/etc/machine-id"
@@ -43,6 +45,7 @@
       "/etc/ssh/ssh_host_ed25519_key.pub"
       "/etc/ssh/ssh_host_rsa_key"
       "/etc/ssh/ssh_host_rsa_key.pub"
+      "/root/.kube"
     ];
   };
 }

@@ -52,38 +52,25 @@ This branch adds a more robust install workflow and first-boot automation:
 
 ```
 .
-├── flake.nix                     # single source of truth — see below
-├── modules/                      # SYSTEM-level config (not workloads)
+├── flake.nix                     # single source of truth
+├── flake.lock                    # flake lock
+├── Makefile
+├── .gitlab-ci.yml
+├── modules/                      # SYSTEM-level config (core, services, testing)
 │   ├── core/
-│   │   ├── auto-upgrade.nix      # auto-upgrade helper for system packages
-│   │   ├── common.nix            # shared packages/users/ssh — safe on any host
-│   │   ├── first-boot.nix        # one-time post-install data collection
-│   │   ├── impermanence.nix      # ZFS rollback-on-boot + explicit persistence
-│   │   └── secrets.nix           # wires the ragenix-encrypted admin password in
 │   ├── services/
-│   │   └── k3s.nix               # the actual workload: k3s, single-node
 │   └── testing/
-│       ├── vm-test.nix           # TEST-ONLY: headless VM smoke test
-│       ├── disko-test.nix        # TEST-ONLY: disposable disk-image overrides
-├── tests/
-│   └── fixtures/
-│       ├── disko-test-ssh-key
-│       └── disko-test-ssh-key.pub
-├── hosts/
-│   ├── archer/disko.nix          # real disk layout for the archer host
-│   ├── caster/disko.nix          # additional host disk layout
-│   ├── lancer/disko.nix          # additional host disk layout
-│   ├── ruler/disko.nix           # additional host disk layout
-│   └── template/disko.nix         # starting point for adding a new host
-├── secrets/
-│   ├── secrets.nix                # ragenix recipients (who can decrypt what)
-│   └── *.age                      # encrypted secrets, safe to commit
-├── scripts/
-│   ├── test-vm.sh                 # build + boot the vm-test image, print SSH cmd
-│   ├── test-disko.sh              # build + boot-test one host's real disk layout
-│   ├── test-suite.sh              # runs every local check, roughly in CI order
-│   └── provision-host.sh           # one-shot real install via nixos-anywhere
-└── .gitlab-ci.yml
+├── hosts/                        # per-host disk definitions and hardware reports
+│   ├── midguard-01/
+│   ├── midguard-02/
+│   ├── midguard-03/
+│   ├── midguard-04/
+│   └── template/
+├── secrets/                      # ragenix/age-encrypted secrets and recipients
+├── scripts/                      # operational helpers (provisioning, results)
+│   └── provision-host.sh
+├── tests/                        # test fixtures and disposable helpers
+└── CHANGELOG.md
 ```
 
 `modules/core/` vs `modules/services/`: `modules/core/` is system-level plumbing
@@ -105,7 +92,7 @@ host. To add a machine: one entry in `hosts`, plus `hosts/<name>/disko.nix`
 
 A host's real config only gets `nixos-facter`'s hardware module wired in
 once `hosts/<name>/facter.json` actually exists and is committed — before
-that, the host evaluates fine without it (this is what lets `archer`
+that, the host evaluates fine without it (this is what lets a host entry
 exist as a config today, with no real hardware yet, without breaking
 anything).
 

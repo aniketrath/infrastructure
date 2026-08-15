@@ -300,16 +300,25 @@ before merging, rather than trusting this job's CI result alone.
 
 Recent local work on branch `host/updatenames` (not yet pushed to `origin/main`):
 
-- Backup branch created: `backup/host-updatenames-20260815-131626`
-- New local commit: `7afdccb` — "chore: apply local uncommitted changes on host/updatenames"
-  - Summary: consolidated a set of local changes (adds, deletes, and modifications).
-  - Files affected (high level): `Makefile`, `core.67584` (binary), `flake.nix`,
-    `modules/core/common.nix`, `modules/core/impermanence.nix`,
-    `modules/services/clustercreds.nix`, removed several test scripts under
-    `scripts/`, and added encrypted secrets under `secrets/`.
+- Backup branch created: `backup/host-updatenames-20260815-131626` (points at previous local state)
 
-- Previous unpushed commit: `ebfe03c` — "fix(disko-test): updated the test script to use port 22 and added gtk for local testing"
-  - Summary: adjusted `scripts/test-disko.sh` to use SSH port 22 for deployed VMs and added GTK helpers for local debugging.
+- Commits on this branch not present in `origin/main` (newest first):
+
+  - `fd5a390` — docs(readme, changelog): record local branch snapshot and pending changelog temp file
+    - Files changed: `README.md`, `CHANGELOG.md.tmp`
+    - Notes: Captures working-tree edits and a temporary changelog file before further history operations.
+
+  - `7afdccb` — chore: apply local uncommitted changes on host/updatenames
+    - Files changed (high level): `Makefile`, `core.67584` (binary), `flake.nix`,
+      `modules/core/common.nix`, `modules/core/impermanence.nix`,
+      `modules/services/clustercreds.nix`, `scripts/test-disko.sh`,
+      `scripts/test-suite.sh`, `scripts/test-vm.sh`, and `secrets/*` entries.
+    - Notes: Consolidated a set of local changes across infra modules, tests, and secrets.
+
+  - `ebfe03c` — fix(disko-test): updated the test script to use port 22 for deployed VMs and added gtk to help with local testing
+    - Files changed: `scripts/test-disko.sh`
+    - Notes: Adjusted the test harness for real-VM (port 22) SSH testing and added GTK helpers for local GUI debugging.
 
 Notes:
-- A backup of the branch was created before committing local changes. If you want any of the local commit messages rewritten (to polish or split them), let me know and I can perform a careful, non-destructive reword (it will create another backup and require a force-push to update remote history).
+- A safety backup branch (`backup/host-updatenames-20260815-131626`) was created before recording working-tree changes.
+- If you want commit messages split or polished, I can create additional commits and perform a non-destructive reword (this may require a force-push to update remote history).

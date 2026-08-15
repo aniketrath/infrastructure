@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased] - 2026-08-15
+
+- **fd5a390** — docs(readme, changelog): record local branch snapshot and pending changelog temp file
+  - Captures working-tree edits: `README.md`, `CHANGELOG.md.tmp`.
+  - Purpose: Preserve local documentation and a temporary changelog draft before branch rename and pushing upstream.
+
+- **7afdccb** — chore: apply local uncommitted changes on host/updatenames
+  - Files (high level): `Makefile`, `core.67584`, `flake.nix`, `modules/core/common.nix`,
+    `modules/core/impermanence.nix`, `modules/services/clustercreds.nix`,
+    `scripts/test-disko.sh`, `scripts/test-suite.sh`, `scripts/test-vm.sh`, `secrets/*`.
+  - Summary: Consolidated infra changes, test adjustments, and secrets updates.
+
+- **ebfe03c** — fix(disko-test): updated test script to use port 22 and added GTK helpers
+  - Files: `scripts/test-disko.sh`.
+  - Summary: Align disko test with real-deployment SSH port and add local debugging helpers.
+
+---
+
 ## [2026-08-10] - fix: k3s networking and secrets update
 
 - Fixed `modules/services/k3s.nix` networking configuration to correct service

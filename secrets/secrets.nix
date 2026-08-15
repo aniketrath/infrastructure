@@ -10,4 +10,6 @@ in
 {
   "usercreds_homelabadmin.age".publicKeys = adminKeys;
   "clustercreds_k3s.age".publicKeys = tokenKeys;
+  "clustercreds_postgres.age".publicKeys = tokenKeys;
+  "clustercreds_tailscale.age".publicKeys = tokenKeys;
 }

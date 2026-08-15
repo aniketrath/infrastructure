@@ -295,3 +295,21 @@ don't expose — a longstanding nixpkgs limitation, not specific to this
 repo. Until a self-hosted runner with KVM passthrough exists, verify
 this locally (`./scripts/test-disko.sh <host>` or `./scripts/test-suite.sh`)
 before merging, rather than trusting this job's CI result alone.
+
+## Local branch snapshot: host/updatenames (unpublished)
+
+Recent local work on branch `host/updatenames` (not yet pushed to `origin/main`):
+
+- Backup branch created: `backup/host-updatenames-20260815-131626`
+- New local commit: `7afdccb` — "chore: apply local uncommitted changes on host/updatenames"
+  - Summary: consolidated a set of local changes (adds, deletes, and modifications).
+  - Files affected (high level): `Makefile`, `core.67584` (binary), `flake.nix`,
+    `modules/core/common.nix`, `modules/core/impermanence.nix`,
+    `modules/services/clustercreds.nix`, removed several test scripts under
+    `scripts/`, and added encrypted secrets under `secrets/`.
+
+- Previous unpushed commit: `ebfe03c` — "fix(disko-test): updated the test script to use port 22 and added gtk for local testing"
+  - Summary: adjusted `scripts/test-disko.sh` to use SSH port 22 for deployed VMs and added GTK helpers for local debugging.
+
+Notes:
+- A backup of the branch was created before committing local changes. If you want any of the local commit messages rewritten (to polish or split them), let me know and I can perform a careful, non-destructive reword (it will create another backup and require a force-push to update remote history).

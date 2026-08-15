@@ -23,11 +23,32 @@
 
       # Central list of physical/virtual hosts and host-specific options
       # # { myK3s.controlPlaneOnly = true; }  # flip when other nodes exist
+      # Modules every real cluster host gets, regardless of role
+      commonModules = [
+        ./modules/core/impermanence.nix
+        ./modules/core/first-boot.nix
+        ./modules/services/k3s.nix
+        ./modules/services/clustercreds.nix
+      ];
+
+      # Central list of physical/virtual hosts and host-specific options
       hosts = {
-        midguard-01 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.isFirstNode = true; } ]; };
-        midguard-02 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://midguard-01:6443"; } ]; };
-        midguard-03 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://midguard-01:6443"; } ]; };
-        midguard-04 = { extraModules = [ ./modules/core/impermanence.nix ./modules/core/first-boot.nix ./modules/services/k3s.nix { myK3s.serverAddr = "https://midguard-01:6443"; } ]; };
+        midguard-01 = { extraModules = commonModules ++ [
+          { myK3s.isFirstNode = true; }
+          { myNetwork = { staticIPv4 = "192.168.1.200"; interface = "enp1s0"; gateway = "192.168.1.1"; }; }
+        ]; };
+        midguard-02 = { extraModules = commonModules ++ [
+          { myK3s.serverAddr = "https://192.168.1.200:6443"; }
+          { myNetwork = { staticIPv4 = "192.168.1.201"; interface = "enp1s0"; gateway = "192.168.1.1"; }; }
+        ]; };
+        midguard-03 = { extraModules = commonModules ++ [
+          { myK3s.serverAddr = "https://192.168.1.200:6443"; }
+          { myNetwork = { staticIPv4 = "192.168.1.202"; interface = "enp1s0"; gateway = "192.168.1.1"; }; }
+        ]; };
+        midguard-04 = { extraModules = commonModules ++ [
+          { myK3s.serverAddr = "https://192.168.1.200:6443"; }
+          { myNetwork = { staticIPv4 = "192.168.1.203"; interface = "enp1s0"; gateway = "192.168.1.1"; }; }
+        ]; };
       };
 
       # Builder function for production host system closures
@@ -59,13 +80,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
-            agenix.nixosModules.default
-            ./modules/core/secrets.nix
-            disko.nixosModules.disko
-            ./modules/core/common.nix
-            ./modules/testing/disko-test.nix
-          ];
-        };
+            agenix.nixosModules.default ./modules/core/secrets.nix disko.nixosModules.disko ./modules/core/common.nix ./modules/testing/disko-test.nix ]; };
     in
     {
       # Development shell for VSCode / direnv
@@ -77,31 +92,19 @@
           pkgs.nixpkgs-fmt
         ];
       };
-
       # Exported NixOS system configurations
       nixosConfigurations =
-        # Real production host systems
         (lib.mapAttrs (hostname: cfg: mkHost hostname cfg) hosts)
         //
-        # Disko test twin configurations (<hostname>-disko-test)
         (lib.mapAttrs' (hostname: cfg: {
           name = "${hostname}-disko-test";
           value = mkDiskoTest hostname cfg;
         }) hosts)
         //
         {
-          # Non-host-specific smoke test VM
           vm-test = nixpkgs.lib.nixosSystem {
             system = ciSystem;
-            modules = [
-              agenix.nixosModules.default
-              ./modules/core/secrets.nix
-              ./modules/core/common.nix
-              ./modules/testing/vm-test.nix
-            ];
-          };
-        };
-
+            modules = [ agenix.nixosModules.default ./modules/core/secrets.nix ./modules/core/common.nix ./modules/testing/vm-test.nix ]; }; };
       # Build artifacts and runnable CI packages
       packages.${ciSystem} =
         { vm-test = self.nixosConfigurations.vm-test.config.system.build.vm; }
@@ -109,7 +112,6 @@
           name = "${hostname}-disko-image";
           value = self.nixosConfigurations."${hostname}-disko-test".config.system.build.diskoImages;
         }) hosts);
-
       # Helper attribute exposing all active hostnames
       hostNames = builtins.attrNames hosts;
     };

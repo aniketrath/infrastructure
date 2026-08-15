@@ -52,38 +52,25 @@ This branch adds a more robust install workflow and first-boot automation:
 
 ```
 .
-├── flake.nix                     # single source of truth — see below
-├── modules/                      # SYSTEM-level config (not workloads)
+├── flake.nix                     # single source of truth
+├── flake.lock                    # flake lock
+├── Makefile
+├── .gitlab-ci.yml
+├── modules/                      # SYSTEM-level config (core, services, testing)
 │   ├── core/
-│   │   ├── auto-upgrade.nix      # auto-upgrade helper for system packages
-│   │   ├── common.nix            # shared packages/users/ssh — safe on any host
-│   │   ├── first-boot.nix        # one-time post-install data collection
-│   │   ├── impermanence.nix      # ZFS rollback-on-boot + explicit persistence
-│   │   └── secrets.nix           # wires the ragenix-encrypted admin password in
 │   ├── services/
-│   │   └── k3s.nix               # the actual workload: k3s, single-node
 │   └── testing/
-│       ├── vm-test.nix           # TEST-ONLY: headless VM smoke test
-│       ├── disko-test.nix        # TEST-ONLY: disposable disk-image overrides
-├── tests/
-│   └── fixtures/
-│       ├── disko-test-ssh-key
-│       └── disko-test-ssh-key.pub
-├── hosts/
-│   ├── archer/disko.nix          # real disk layout for the archer host
-│   ├── caster/disko.nix          # additional host disk layout
-│   ├── lancer/disko.nix          # additional host disk layout
-│   ├── ruler/disko.nix           # additional host disk layout
-│   └── template/disko.nix         # starting point for adding a new host
-├── secrets/
-│   ├── secrets.nix                # ragenix recipients (who can decrypt what)
-│   └── *.age                      # encrypted secrets, safe to commit
-├── scripts/
-│   ├── test-vm.sh                 # build + boot the vm-test image, print SSH cmd
-│   ├── test-disko.sh              # build + boot-test one host's real disk layout
-│   ├── test-suite.sh              # runs every local check, roughly in CI order
-│   └── provision-host.sh           # one-shot real install via nixos-anywhere
-└── .gitlab-ci.yml
+├── hosts/                        # per-host disk definitions and hardware reports
+│   ├── midguard-01/
+│   ├── midguard-02/
+│   ├── midguard-03/
+│   ├── midguard-04/
+│   └── template/
+├── secrets/                      # ragenix/age-encrypted secrets and recipients
+├── scripts/                      # operational helpers (provisioning, results)
+│   └── provision-host.sh
+├── tests/                        # test fixtures and disposable helpers
+└── CHANGELOG.md
 ```
 
 `modules/core/` vs `modules/services/`: `modules/core/` is system-level plumbing
@@ -105,39 +92,36 @@ host. To add a machine: one entry in `hosts`, plus `hosts/<name>/disko.nix`
 
 A host's real config only gets `nixos-facter`'s hardware module wired in
 once `hosts/<name>/facter.json` actually exists and is committed — before
-that, the host evaluates fine without it (this is what lets `archer`
+that, the host evaluates fine without it (this is what lets a host entry
 exist as a config today, with no real hardware yet, without breaking
 anything).
 
-## Local testing
+## Local testing (Makefile)
 
-Fastest path — run everything at once before pushing:
+Fastest path — run everything at once before pushing via the `Makefile`:
 ```bash
-./scripts/test-suite.sh              # every check, including both VM boots
-./scripts/test-suite.sh --skip-boot  # fast: eval/flake-check only, no QEMU
-./scripts/test-suite.sh --debug      # verbose, for actually diagnosing a failure
+make test                # full suite: flake checks, evals, builds and boots
+make test DEBUG=1        # verbose output (prints build logs)
 ```
 
 Or run the two boot-relevant checks individually:
 
 **1. General config (packages, users, services) — does it evaluate and boot?**
 ```bash
-./scripts/test-vm.sh
+make vm                 # builds and boots the shared vm-test image
 ```
-Builds `.#vm-test`, boots it headlessly under QEMU, prints the SSH
-command to hop in using your real key (`modules/core/common.nix`).
+Builds `.#vm-test`, boots it headlessly under QEMU, and prints the SSH
+command to hop in using your real key.
 
 **2. A specific host's REAL disk layout — does it partition, format, and boot?**
 ```bash
-bash scripts/test-disko.sh <hostname>
+make disko HOST=<hostname>
 ```
 Builds `.#<hostname>-disko-image`, boots it under software-emulated QEMU
-(works without `/dev/kvm`, so it also runs on plain CI shared runners —
-just slower), verifies success over SSH (`systemctl is-system-running
---wait`) using a throwaway keypair committed specifically for this
-(`tests/fixtures/disko-test-ssh-key[.pub]` — unlocks nothing but this
-disposable image). Pass/fail is based on the machine actually reaching a
-running state, not just `nix build` succeeding.
+(works without `/dev/kvm`, so it runs on CI runners too, just slower),
+verifies success over SSH (`systemctl is-system-running --wait`) using a
+throwaway keypair in `tests/fixtures/disko-test-ssh-key[.pub]`. Pass/fail is
+based on the machine reaching a running state over SSH.
 
 **Important, current scope limitation:** the disko-test image is
 deliberately self-contained — single ext4 partition, no ZFS, no
@@ -295,3 +279,30 @@ don't expose — a longstanding nixpkgs limitation, not specific to this
 repo. Until a self-hosted runner with KVM passthrough exists, verify
 this locally (`./scripts/test-disko.sh <host>` or `./scripts/test-suite.sh`)
 before merging, rather than trusting this job's CI result alone.
+
+## Local branch snapshot: host/updatenames (unpublished)
+
+Recent local work on branch `host/updatenames` (not yet pushed to `origin/main`):
+
+- Backup branch created: `backup/host-updatenames-20260815-131626` (points at previous local state)
+
+- Commits on this branch not present in `origin/main` (newest first):
+
+  - `fd5a390` — docs(readme, changelog): record local branch snapshot and pending changelog temp file
+    - Files changed: `README.md`, `CHANGELOG.md.tmp`
+    - Notes: Captures working-tree edits and a temporary changelog file before further history operations.
+
+  - `7afdccb` — chore: apply local uncommitted changes on host/updatenames
+    - Files changed (high level): `Makefile`, `core.67584` (binary), `flake.nix`,
+      `modules/core/common.nix`, `modules/core/impermanence.nix`,
+      `modules/services/clustercreds.nix`, `scripts/test-disko.sh`,
+      `scripts/test-suite.sh`, `scripts/test-vm.sh`, and `secrets/*` entries.
+    - Notes: Consolidated a set of local changes across infra modules, tests, and secrets.
+
+  - `ebfe03c` — fix(disko-test): updated the test script to use port 22 for deployed VMs and added gtk to help with local testing
+    - Files changed: `scripts/test-disko.sh`
+    - Notes: Adjusted the test harness for real-VM (port 22) SSH testing and added GTK helpers for local GUI debugging.
+
+Notes:
+- A safety backup branch (`backup/host-updatenames-20260815-131626`) was created before recording working-tree changes.
+- If you want commit messages split or polished, I can create additional commits and perform a non-destructive reword (this may require a force-push to update remote history).

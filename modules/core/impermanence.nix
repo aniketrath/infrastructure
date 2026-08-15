@@ -6,6 +6,7 @@
   boot.initrd.systemd.enable = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
   boot.initrd.systemd.services.zfs-rollback = {
     description = "Roll back root dataset to blank snapshot";
     wantedBy = [ "initrd.target" ];
@@ -23,14 +24,16 @@
       fi
     '';
   };
+
   fileSystems."/persist".neededForBoot = true;
+
   environment.persistence."/persist" = {
     hideMounts = true;
     directories = [
       "/var/lib"
-      "/var/lib/nixos"
       "/var/log"
       "/var/lib/systemd/coredump"
+      "/etc/rancher/node"
       {
         directory = "/home/homelabadmin";
         user = "homelabadmin";
@@ -45,7 +48,16 @@
       "/etc/ssh/ssh_host_ed25519_key.pub"
       "/etc/ssh/ssh_host_rsa_key"
       "/etc/ssh/ssh_host_rsa_key.pub"
-      "/root/.kube"
     ];
   };
+
+  # Ensures impermanence's ownership/mode tmpfiles rules apply to the actual
+  # persisted data rather than firing before the bind mounts exist.
+  systemd.services.systemd-tmpfiles-setup.unitConfig.RequiresMountsFor = [
+    "/persist"
+    "/home/homelabadmin"
+    "/root"
+  ];
+
+  services.journald.storage = "persistent";
 }

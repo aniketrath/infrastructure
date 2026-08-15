@@ -22,6 +22,13 @@
 
 ---
 
+## [Unreleased Changes] - 2026-08-15
+
+- **migration** — consolidate test helpers into Makefile and remove shell scripts
+  - Replaced `scripts/test-suite.sh`, `scripts/test-vm.sh`, and `scripts/test-disko.sh` with Makefile targets: `make test`, `make vm`, and `make disko HOST=<name>`.
+  - Rationale: single entrypoint for local testing, clearer flags (`DEBUG`), and standardized output.
+
+
 ## [2026-08-10] - fix: k3s networking and secrets update
 
 - Fixed `modules/services/k3s.nix` networking configuration to correct service

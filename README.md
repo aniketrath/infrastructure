@@ -96,35 +96,32 @@ that, the host evaluates fine without it (this is what lets a host entry
 exist as a config today, with no real hardware yet, without breaking
 anything).
 
-## Local testing
+## Local testing (Makefile)
 
-Fastest path — run everything at once before pushing:
+Fastest path — run everything at once before pushing via the `Makefile`:
 ```bash
-./scripts/test-suite.sh              # every check, including both VM boots
-./scripts/test-suite.sh --skip-boot  # fast: eval/flake-check only, no QEMU
-./scripts/test-suite.sh --debug      # verbose, for actually diagnosing a failure
+make test                # full suite: flake checks, evals, builds and boots
+make test DEBUG=1        # verbose output (prints build logs)
 ```
 
 Or run the two boot-relevant checks individually:
 
 **1. General config (packages, users, services) — does it evaluate and boot?**
 ```bash
-./scripts/test-vm.sh
+make vm                 # builds and boots the shared vm-test image
 ```
-Builds `.#vm-test`, boots it headlessly under QEMU, prints the SSH
-command to hop in using your real key (`modules/core/common.nix`).
+Builds `.#vm-test`, boots it headlessly under QEMU, and prints the SSH
+command to hop in using your real key.
 
 **2. A specific host's REAL disk layout — does it partition, format, and boot?**
 ```bash
-bash scripts/test-disko.sh <hostname>
+make disko HOST=<hostname>
 ```
 Builds `.#<hostname>-disko-image`, boots it under software-emulated QEMU
-(works without `/dev/kvm`, so it also runs on plain CI shared runners —
-just slower), verifies success over SSH (`systemctl is-system-running
---wait`) using a throwaway keypair committed specifically for this
-(`tests/fixtures/disko-test-ssh-key[.pub]` — unlocks nothing but this
-disposable image). Pass/fail is based on the machine actually reaching a
-running state, not just `nix build` succeeding.
+(works without `/dev/kvm`, so it runs on CI runners too, just slower),
+verifies success over SSH (`systemctl is-system-running --wait`) using a
+throwaway keypair in `tests/fixtures/disko-test-ssh-key[.pub]`. Pass/fail is
+based on the machine reaching a running state over SSH.
 
 **Important, current scope limitation:** the disko-test image is
 deliberately self-contained — single ext4 partition, no ZFS, no

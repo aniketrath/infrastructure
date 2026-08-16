@@ -18,6 +18,7 @@ let
   secrets = [
     { name = "clustercreds-postgres"; file = "clustercreds_postgres.age"; }
     { name = "operator-oauth"; file = "clustercreds_tailscale.age"; }
+    { name = "operator-infisical"; file = "clustercreds_infisical.age"; }
   ];
   toManifestPath = name: "/var/lib/rancher/k3s/server/manifests/${name}-secret.yaml";
 in

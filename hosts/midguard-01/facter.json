@@ -106,7 +106,7 @@
         "module_alias": "usb:v8087p0033d0000dcE0dsc01dp01icE0isc01ip01in00"
       },
       {
-        "index": 53,
+        "index": 54,
         "attached_to": 48,
         "class_list": [
           "usb",
@@ -754,6 +754,7 @@
         "fpu_exception": false,
         "cpuid_level": 32,
         "write_protect": false,
+        "tlb_size": 30571,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -891,11 +892,11 @@
         "model": "IT1 Disk 2.0",
         "sysfs_id": "/class/block/sda",
         "sysfs_bus_id": "2:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.0/host2/target2:0:0/2:0:0:0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb3/3-7/3-7:1.0/host2/target2:0:0/2:0:0:0",
         "unix_device_names": [
           "/dev/disk/by-id/usb-IT1_Disk_2.0_5789621066275059413-0:0",
-          "/dev/disk/by-path/pci-0000:00:14.0-usb-0:1:1.0-scsi-0:0:0:0",
-          "/dev/disk/by-path/pci-0000:00:14.0-usbv2-0:1:1.0-scsi-0:0:0:0",
+          "/dev/disk/by-path/pci-0000:00:14.0-usb-0:7:1.0-scsi-0:0:0:0",
+          "/dev/disk/by-path/pci-0000:00:14.0-usbv2-0:7:1.0-scsi-0:0:0:0",
           "/dev/sda"
         ],
         "unix_device_name2": "/dev/sg0",
@@ -1111,7 +1112,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 51,
+        "index": 52,
         "attached_to": 39,
         "class_list": [
           "usb",
@@ -1188,7 +1189,7 @@
         "module_alias": "usb:v1D6Bp0003d0618dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 52,
+        "index": 53,
         "attached_to": 22,
         "class_list": [
           "usb",
@@ -1275,7 +1276,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 54,
+        "index": 57,
         "attached_to": 22,
         "class_list": [
           "usb",
@@ -1354,7 +1355,7 @@
     ],
     "keyboard": [
       {
-        "index": 47,
+        "index": 51,
         "attached_to": 48,
         "class_list": [
           "keyboard",
@@ -1380,33 +1381,33 @@
           "value": 0
         },
         "vendor": {
-          "hex": "413c",
-          "name": "DELL",
-          "value": 16700
+          "hex": "046d",
+          "name": "Logitech Inc.",
+          "value": 1133
         },
         "device": {
-          "hex": "2107",
-          "name": "Dell USB Entry Keyboard",
-          "value": 8455
+          "hex": "c548",
+          "name": "USB Receiver",
+          "value": 50504
         },
         "revision": {
           "hex": "0000",
-          "name": "1.78",
+          "name": "5.03",
           "value": 0
         },
-        "model": "DELL Dell USB Entry Keyboard",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb3/3-7/3-7:1.0",
-        "sysfs_bus_id": "3-7:1.0",
+        "model": "Logitech USB Receiver",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.0",
+        "sysfs_bus_id": "3-1:1.0",
         "unix_device_names": [
-          "/dev/input/by-id/usb-DELL_Dell_USB_Entry_Keyboard-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usb-0:7:1.0-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:7:1.0-event-kbd",
+          "/dev/input/by-id/usb-Logitech_USB_Receiver-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.0-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:1:1.0-event-kbd",
           "/dev/input/event0"
         ],
         "resources": [
           {
             "type": "baud",
-            "speed": 1500000,
+            "speed": 12000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -1453,7 +1454,7 @@
           "xkb_rules": "xfree86",
           "xkb_model": "pc104"
         },
-        "module_alias": "usb:v413Cp2107d0178dc00dsc00dp00ic03isc01ip01in00"
+        "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc01ip01in00"
       }
     ],
     "memory": [
@@ -1505,9 +1506,9 @@
           "value": 7789
         },
         "device": {
-          "hex": "5bf7",
+          "hex": "5bf9",
           "name": "LG ULTRAWIDE",
-          "value": 23543
+          "value": 23545
         },
         "serial": "165508",
         "model": "LG ELECTRONICS LG ULTRAWIDE",
@@ -1624,6 +1625,258 @@
         }
       }
     ],
+    "mouse": [
+      {
+        "index": 55,
+        "attached_to": 48,
+        "class_list": [
+          "mouse",
+          "usb"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0105",
+          "name": "Mouse",
+          "value": 261
+        },
+        "sub_class": {
+          "hex": "0003",
+          "name": "USB Mouse",
+          "value": 3
+        },
+        "vendor": {
+          "hex": "046d",
+          "name": "Logitech Inc.",
+          "value": 1133
+        },
+        "device": {
+          "hex": "c548",
+          "name": "USB Receiver",
+          "value": 50504
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "5.03",
+          "value": 0
+        },
+        "compat_vendor": "Unknown",
+        "compat_device": "Generic USB Mouse",
+        "model": "Logitech USB Receiver",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.3",
+        "sysfs_bus_id": "3-1:1.3",
+        "unix_device_names": [
+          "/dev/input/mice"
+        ],
+        "unix_device_name2": "/dev/input/mouse1",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 0,
+          "interface_number": 3,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "driver_info": {
+          "type": "mouse",
+          "db_entry_0": [
+            "explorerps/2",
+            "exps2"
+          ],
+          "xf86": "explorerps/2",
+          "gpm": "exps2",
+          "buttons": -1,
+          "wheels": -1
+        },
+        "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc00ip00in03"
+      },
+      {
+        "index": 56,
+        "attached_to": 48,
+        "class_list": [
+          "mouse",
+          "usb"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0105",
+          "name": "Mouse",
+          "value": 261
+        },
+        "sub_class": {
+          "hex": "0003",
+          "name": "USB Mouse",
+          "value": 3
+        },
+        "vendor": {
+          "hex": "046d",
+          "name": "Logitech Inc.",
+          "value": 1133
+        },
+        "device": {
+          "hex": "c548",
+          "name": "USB Receiver",
+          "value": 50504
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "5.03",
+          "value": 0
+        },
+        "compat_vendor": "Unknown",
+        "compat_device": "Generic USB Mouse",
+        "model": "Logitech USB Receiver",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.1",
+        "sysfs_bus_id": "3-1:1.1",
+        "unix_device_names": [
+          "/dev/input/mice"
+        ],
+        "unix_device_name2": "/dev/input/mouse0",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0001",
+            "name": "audio",
+            "value": 1
+          },
+          "interface_protocol": 2,
+          "interface_number": 1,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "driver_info": {
+          "type": "mouse",
+          "db_entry_0": [
+            "explorerps/2",
+            "exps2"
+          ],
+          "xf86": "explorerps/2",
+          "gpm": "exps2",
+          "buttons": -1,
+          "wheels": -1
+        },
+        "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc01ip02in01"
+      },
+      {
+        "index": 61,
+        "attached_to": 0,
+        "bus_type": {
+          "hex": "0086",
+          "name": "usb",
+          "value": 134
+        },
+        "base_class": {
+          "hex": "0118",
+          "name": "touchpad",
+          "value": 280
+        },
+        "sub_class": {
+          "hex": "0003",
+          "name": "usb",
+          "value": 3
+        },
+        "vendor": {
+          "hex": "046d",
+          "name": "Logitech",
+          "value": 1133
+        },
+        "device": {
+          "hex": "c548",
+          "name": "USB_Receiver",
+          "value": 50504
+        },
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.3/0003:046D:C548.0004/input/input9",
+        "unix_device_names": [
+          "/dev/input/event8",
+          "/dev/input/ + handler"
+        ]
+      }
+    ],
     "network_controller": [
       {
         "index": 26,
@@ -1684,7 +1937,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 53
+            "address": 50
           },
           {
             "type": "phwaddr",
@@ -1877,7 +2130,7 @@
     ],
     "network_interface": [
       {
-        "index": 55,
+        "index": 58,
         "attached_to": 40,
         "class_list": [
           "network_interface"
@@ -1918,7 +2171,7 @@
         ]
       },
       {
-        "index": 56,
+        "index": 59,
         "attached_to": 26,
         "class_list": [
           "network_interface"
@@ -1942,7 +2195,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 53
+            "address": 50
           },
           {
             "type": "phwaddr",
@@ -1959,7 +2212,7 @@
         ]
       },
       {
-        "index": 57,
+        "index": 60,
         "attached_to": 0,
         "class_list": [
           "network_interface"
@@ -2750,6 +3003,99 @@
     "system": {
       "form_factor": "desktop"
     },
+    "usb": [
+      {
+        "index": 50,
+        "attached_to": 48,
+        "class_list": [
+          "usb",
+          "unknown"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "vendor": {
+          "hex": "046d",
+          "name": "Logitech Inc.",
+          "value": 1133
+        },
+        "device": {
+          "hex": "c548",
+          "name": "USB Receiver",
+          "value": 50504
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "5.03",
+          "value": 0
+        },
+        "model": "Logitech USB Receiver",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.2",
+        "sysfs_bus_id": "3-1:1.2",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 0,
+          "interface_number": 2,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc00ip00in02"
+      }
+    ],
     "usb_controller": [
       {
         "index": 22,

@@ -12,4 +12,5 @@ in
   "clustercreds_k3s.age".publicKeys = tokenKeys;
   "clustercreds_postgres.age".publicKeys = tokenKeys;
   "clustercreds_tailscale.age".publicKeys = tokenKeys;
+  "clustercreds_infisical.age".publicKeys = tokenKeys;
 }

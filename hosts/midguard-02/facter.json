@@ -27,7 +27,7 @@
     },
     "bluetooth": [
       {
-        "index": 34,
+        "index": 35,
         "attached_to": 38,
         "class_list": [
           "usb",
@@ -331,7 +331,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 20,
+        "index": 21,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -569,8 +569,8 @@
     ],
     "disk": [
       {
-        "index": 31,
-        "attached_to": 26,
+        "index": 32,
+        "attached_to": 27,
         "class_list": [
           "disk",
           "usb",
@@ -660,7 +660,7 @@
         "module_alias": "usb:v346Dp5678d0200dc00dsc00dp00ic08isc06ip50in00"
       },
       {
-        "index": 32,
+        "index": 33,
         "attached_to": 12,
         "class_list": [
           "disk",
@@ -738,7 +738,7 @@
     ],
     "graphics_card": [
       {
-        "index": 25,
+        "index": 26,
         "attached_to": 0,
         "class_list": [
           "graphics_card",
@@ -824,7 +824,7 @@
     "hub": [
       {
         "index": 38,
-        "attached_to": 26,
+        "attached_to": 27,
         "class_list": [
           "usb",
           "hub"
@@ -910,8 +910,8 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 41,
-        "attached_to": 26,
+        "index": 42,
+        "attached_to": 27,
         "class_list": [
           "usb",
           "hub"
@@ -1015,108 +1015,6 @@
           "value": 0
         },
         "vendor": {
-          "hex": "413c",
-          "name": "DELL",
-          "value": 16700
-        },
-        "device": {
-          "hex": "2107",
-          "name": "Dell USB Entry Keyboard",
-          "value": 8455
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "1.78",
-          "value": 0
-        },
-        "model": "DELL Dell USB Entry Keyboard",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.0",
-        "sysfs_bus_id": "1-3:1.0",
-        "unix_device_names": [
-          "/dev/input/by-id/usb-DELL_Dell_USB_Entry_Keyboard-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usb-0:3:1.0-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:3:1.0-event-kbd",
-          "/dev/input/event0"
-        ],
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 1500000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_protocol": 0,
-          "interface_class": {
-            "hex": "0003",
-            "name": "hid",
-            "value": 3
-          },
-          "interface_subclass": {
-            "hex": "0001",
-            "name": "audio",
-            "value": 1
-          },
-          "interface_protocol": 1,
-          "interface_number": 0,
-          "interface_alternate_setting": 0
-        },
-        "hotplug": "usb",
-        "driver": "usbhid",
-        "driver_module": "usbhid",
-        "drivers": [
-          "usbhid"
-        ],
-        "driver_modules": [
-          "usbhid"
-        ],
-        "driver_info": {
-          "type": "keyboard",
-          "xkb_rules": "xfree86",
-          "xkb_model": "pc104"
-        },
-        "module_alias": "usb:v413Cp2107d0178dc00dsc00dp00ic03isc01ip01in00"
-      },
-      {
-        "index": 42,
-        "attached_to": 38,
-        "class_list": [
-          "keyboard",
-          "usb"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0108",
-          "name": "Keyboard",
-          "value": 264
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Keyboard",
-          "value": 0
-        },
-        "vendor": {
           "hex": "046d",
           "name": "Logitech Inc.",
           "value": 1133
@@ -1132,13 +1030,13 @@
           "value": 0
         },
         "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.0",
-        "sysfs_bus_id": "1-5:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.0",
+        "sysfs_bus_id": "1-3:1.0",
         "unix_device_names": [
           "/dev/input/by-id/usb-Logitech_USB_Receiver-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usb-0:5:1.0-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:5:1.0-event-kbd",
-          "/dev/input/event1"
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:3:1.0-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:3:1.0-event-kbd",
+          "/dev/input/event0"
         ],
         "resources": [
           {
@@ -1221,8 +1119,8 @@
     ],
     "monitor": [
       {
-        "index": 28,
-        "attached_to": 25,
+        "index": 29,
+        "attached_to": 26,
         "class_list": [
           "monitor"
         ],
@@ -1242,9 +1140,9 @@
           "value": 7789
         },
         "device": {
-          "hex": "5bf7",
+          "hex": "5bf9",
           "name": "LG ULTRAWIDE",
-          "value": 23543
+          "value": 23545
         },
         "serial": "165508",
         "model": "LG ELECTRONICS LG ULTRAWIDE",
@@ -1363,7 +1261,7 @@
     ],
     "mouse": [
       {
-        "index": 35,
+        "index": 40,
         "attached_to": 38,
         "class_list": [
           "mouse",
@@ -1406,8 +1304,8 @@
         "compat_vendor": "Unknown",
         "compat_device": "Generic USB Mouse",
         "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.3",
-        "sysfs_bus_id": "1-5:1.3",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.3",
+        "sysfs_bus_id": "1-3:1.3",
         "unix_device_names": [
           "/dev/input/mice"
         ],
@@ -1471,7 +1369,7 @@
         "module_alias": "usb:v046DpC548d0503dc00dsc00dp00ic03isc00ip00in03"
       },
       {
-        "index": 36,
+        "index": 41,
         "attached_to": 38,
         "class_list": [
           "mouse",
@@ -1514,8 +1412,8 @@
         "compat_vendor": "Unknown",
         "compat_device": "Generic USB Mouse",
         "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.1",
-        "sysfs_bus_id": "1-5:1.1",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.1",
+        "sysfs_bus_id": "1-3:1.1",
         "unix_device_names": [
           "/dev/input/mice"
         ],
@@ -1606,9 +1504,9 @@
           "name": "USB_Receiver",
           "value": 50504
         },
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.3/0003:046D:C548.0005/input/input10",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.3/0003:046D:C548.0004/input/input9",
         "unix_device_names": [
-          "/dev/input/event9",
+          "/dev/input/event8",
           "/dev/input/ + handler"
         ]
       }
@@ -1672,7 +1570,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 99
+            "address": 57
           },
           {
             "type": "phwaddr",
@@ -1780,7 +1678,7 @@
         "module_alias": "pci:v00008086d000024FDsv00008086sd00000010bc02sc80i00"
       },
       {
-        "index": 24,
+        "index": 25,
         "attached_to": 0,
         "class_list": [
           "network_controller",
@@ -1887,48 +1785,7 @@
       },
       {
         "index": 44,
-        "attached_to": 19,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/wlp1s0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.0/0000:01:00.0",
-        "unix_device_names": [
-          "wlp1s0"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 99
-          },
-          {
-            "type": "phwaddr",
-            "address": 51
-          }
-        ],
-        "driver": "iwlwifi",
-        "driver_module": "iwlwifi",
-        "drivers": [
-          "iwlwifi"
-        ],
-        "driver_modules": [
-          "iwlwifi"
-        ]
-      },
-      {
-        "index": 45,
-        "attached_to": 24,
+        "attached_to": 25,
         "class_list": [
           "network_interface"
         ],
@@ -1965,6 +1822,47 @@
         ],
         "driver_modules": [
           "e1000e"
+        ]
+      },
+      {
+        "index": 45,
+        "attached_to": 19,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/wlp1s0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.0/0000:01:00.0",
+        "unix_device_names": [
+          "wlp1s0"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 57
+          },
+          {
+            "type": "phwaddr",
+            "address": 51
+          }
+        ],
+        "driver": "iwlwifi",
+        "driver_module": "iwlwifi",
+        "drivers": [
+          "iwlwifi"
+        ],
+        "driver_modules": [
+          "iwlwifi"
         ]
       }
     ],
@@ -2226,7 +2124,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 21,
+        "index": 22,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2295,7 +2193,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 22,
+        "index": 23,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2378,7 +2276,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 23,
+        "index": 24,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2447,7 +2345,7 @@
         "label": "Onboard - Other"
       },
       {
-        "index": 27,
+        "index": 28,
         "attached_to": 0,
         "class_list": [
           "pci",
@@ -2523,6 +2421,76 @@
         ],
         "module_alias": "pci:v00008086d00009D23sv00008086sd00002070bc0Csc05i00",
         "label": "Onboard - Other"
+      }
+    ],
+    "sound": [
+      {
+        "index": 20,
+        "attached_to": 0,
+        "class_list": [
+          "sound",
+          "pci"
+        ],
+        "bus_type": {
+          "hex": "0004",
+          "name": "PCI",
+          "value": 4
+        },
+        "slot": {
+          "bus": 0,
+          "number": 31
+        },
+        "base_class": {
+          "hex": "0004",
+          "name": "Multimedia controller",
+          "value": 4
+        },
+        "sub_class": {
+          "hex": "0003",
+          "value": 3
+        },
+        "vendor": {
+          "hex": "8086",
+          "name": "Intel Corporation",
+          "value": 32902
+        },
+        "sub_vendor": {
+          "hex": "8086",
+          "name": "Intel Corporation",
+          "value": 32902
+        },
+        "device": {
+          "hex": "9d71",
+          "value": 40305
+        },
+        "sub_device": {
+          "hex": "2070",
+          "value": 8304
+        },
+        "revision": {
+          "hex": "0021",
+          "value": 33
+        },
+        "model": "Intel Multimedia controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1f.3",
+        "sysfs_bus_id": "0000:00:1f.3",
+        "detail": {
+          "function": 3,
+          "command": 1030,
+          "header_type": 0,
+          "secondary_bus": 0,
+          "prog_if": 0
+        },
+        "driver": "snd_hda_intel",
+        "driver_module": "snd_hda_intel",
+        "drivers": [
+          "snd_hda_intel"
+        ],
+        "driver_modules": [
+          "snd_hda_intel"
+        ],
+        "module_alias": "pci:v00008086d00009D71sv00008086sd00002070bc04sc03i00",
+        "label": "Onboard - Sound"
       }
     ],
     "storage_controller": [
@@ -2627,7 +2595,7 @@
     },
     "unknown": [
       {
-        "index": 29,
+        "index": 30,
         "attached_to": 0,
         "class_list": [
           "unknown"
@@ -2667,7 +2635,7 @@
         ]
       },
       {
-        "index": 30,
+        "index": 31,
         "attached_to": 0,
         "class_list": [
           "unknown"
@@ -2709,7 +2677,7 @@
     ],
     "usb": [
       {
-        "index": 40,
+        "index": 36,
         "attached_to": 38,
         "class_list": [
           "usb",
@@ -2750,8 +2718,8 @@
           "value": 0
         },
         "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.2",
-        "sysfs_bus_id": "1-5:1.2",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.2",
+        "sysfs_bus_id": "1-3:1.2",
         "resources": [
           {
             "type": "baud",
@@ -2802,7 +2770,7 @@
     ],
     "usb_controller": [
       {
-        "index": 26,
+        "index": 27,
         "attached_to": 0,
         "class_list": [
           "usb_controller",
@@ -3098,7 +3066,7 @@
         ]
       },
       {
-        "handle": 91,
+        "handle": 92,
         "name": "$MEI",
         "handles": [
           0
@@ -3107,7 +3075,7 @@
     ],
     "language": [
       {
-        "handle": 90,
+        "handle": 91,
         "languages": [
           "en|US|iso8859-1"
         ]

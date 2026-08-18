@@ -5,12 +5,14 @@ let
 
   adminKeys = [ laptop midguard-01 midguard-02 ];
   clusterNodes = [ midguard-01 midguard-02 ];
-  tokenKeys = [ laptop ] ++ clusterNodes;
+  tokenKeys = clusterNodes;
 in
 {
   "usercreds_homelabadmin.age".publicKeys = adminKeys;
-  "clustercreds_k3s.age".publicKeys = tokenKeys;
-  "clustercreds_postgres.age".publicKeys = tokenKeys;
-  "clustercreds_tailscale.age".publicKeys = tokenKeys;
-  "clustercreds_infisical.age".publicKeys = tokenKeys;
+  "clustercreds_k3s.age".publicKeys = clusterNodes;
+  "clustercreds_postgres.age".publicKeys = clusterNodes;
+  "clustercreds_tailscale.age".publicKeys = clusterNodes;
+  "clustercreds_infisical.age".publicKeys = clusterNodes;
+  
+  __access_keys = adminKeys;
 }

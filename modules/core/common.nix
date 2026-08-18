@@ -71,7 +71,7 @@ in
           homelabadmin = {
             isNormalUser = true;
             shell = pkgs.zsh;
-            extraGroups = [ "wheel" "libvirtd" "kvm" "qemu" ];
+            extraGroups = [ "wheel" "libvirtd" "kvm" "qemu" "kubectl"];
             hashedPasswordFile = config.age.secrets.homelabadmin-password.path;
             openssh.authorizedKeys.keys = secrets.__access_keys;
           };

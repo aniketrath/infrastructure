@@ -1,39 +1,49 @@
 { config, lib, pkgs, ... }:
 {
-  boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs.forceImportRoot = false;
+  boot = {
+    supportedFilesystems = [ "zfs" ];
+    zfs.forceImportRoot = false;
+    initrd.systemd.enable = true;
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    initrd.systemd.services.zfs-rollback = {
+      description = "Roll back root dataset to blank snapshot";
+      wantedBy = [ "initrd.target" ];
+      after = [ "zfs-import-zroot.service" "persist.mount" ];
+      requires = [ "persist.mount" ];
+      before = [ "sysroot.mount" ];
+      path = [ pkgs.zfs ];
+      unitConfig.DefaultDependencies = "no";
+      serviceConfig.Type = "oneshot";
+      script = ''
+        MARKER="/persist/.zfs-bootstrap-done"
+        SNAP_EXISTS=0
+        zfs list -t snapshot zroot/root@blank >/dev/null 2>&1 && SNAP_EXISTS=1
 
-  boot.initrd.systemd.enable = true;
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  boot.initrd.systemd.services.zfs-rollback = {
-    description = "Roll back root dataset to blank snapshot";
-    wantedBy = [ "initrd.target" ];
-    after = [ "zfs-import-zroot.service" ];
-    before = [ "sysroot.mount" ];
-    path = [ pkgs.zfs ];
-    unitConfig.DefaultDependencies = "no";
-    serviceConfig.Type = "oneshot";
-    script = ''
-      if ! zfs list -t snapshot zroot/root@blank >/dev/null 2>&1; then
-        echo "First boot: no @blank snapshot yet, creating one now"
-        zfs snapshot zroot/root@blank
-      else
-        zfs rollback -r zroot/root@blank
-      fi
-    '';
+        if [[ ! -f "$MARKER" && "$SNAP_EXISTS" -eq 0 ]]; then
+          echo "First boot: creating @blank snapshot"
+          zfs snapshot zroot/root@blank
+          touch "$MARKER"
+        elif [[ -f "$MARKER" && "$SNAP_EXISTS" -eq 0 ]]; then
+          echo "ERROR: @blank snapshot missing but bootstrap marker exists." >&2
+          echo "       Refusing to auto-recreate it from current disk state." >&2
+          exit 1
+        else
+          zfs rollback -r zroot/root@blank
+        fi
+      '';
+    };
   };
-
   fileSystems."/persist".neededForBoot = true;
-
   environment.persistence."/persist" = {
     hideMounts = true;
     directories = [
       "/var/lib"
       "/var/log"
       "/var/lib/systemd/coredump"
-      "/etc/rancher/node"
+      "/etc/rancher"
       {
         directory = "/home/homelabadmin";
         user = "homelabadmin";
@@ -50,14 +60,10 @@
       "/etc/ssh/ssh_host_rsa_key.pub"
     ];
   };
-
-  # Ensures impermanence's ownership/mode tmpfiles rules apply to the actual
-  # persisted data rather than firing before the bind mounts exist.
   systemd.services.systemd-tmpfiles-setup.unitConfig.RequiresMountsFor = [
     "/persist"
     "/home/homelabadmin"
     "/root"
   ];
-
   services.journald.storage = "persistent";
 }

@@ -4,6 +4,9 @@ let
   secrets = import ../../secrets/secrets.nix;
 in
 {
+  imports = [
+    ./auto-upgrade.nix
+  ];
   options.myNetwork = {
     staticIPv4 = lib.mkOption {
       type = lib.types.nullOr lib.types.str;

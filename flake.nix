@@ -35,11 +35,11 @@
       hosts = {
         midguard-01 = { extraModules = commonModules ++ [
           { myK3s.isFirstNode = true; }
-          { myNetwork = { staticIPv4 = "192.168.1.200"; interface = "enp1s0"; gateway = "192.168.1.1"; }; }
+          { myNetwork = { staticIPv4 = "192.168.1.200"; interface = "enp86s0"; gateway = "192.168.1.1"; }; }
         ]; };
         midguard-02 = { extraModules = commonModules ++ [
           { myK3s.serverAddr = "https://192.168.1.200:6443"; }
-          { myNetwork = { staticIPv4 = "192.168.1.201"; interface = "enp1s0"; gateway = "192.168.1.1"; }; }
+          { myNetwork = { staticIPv4 = "192.168.1.201"; interface = "eno1"; gateway = "192.168.1.1"; }; }
         ]; };
         midguard-03 = { extraModules = commonModules ++ [
           { myK3s.serverAddr = "https://192.168.1.200:6443"; }

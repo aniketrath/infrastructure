@@ -36,7 +36,6 @@ in
       description = "Resolver nameservers, used only when staticIPv4 is set.";
     };
   };
-
   config = lib.mkMerge [
     {
       boot = {
@@ -59,11 +58,22 @@ in
       environment = {
         enableAllTerminfo = true;
         systemPackages = with pkgs; [
-          curl neovim vim wget eza bat jdk21_headless traceroute bind nettools iputils glances lsof
-          strace tcpdump ncdu jq iproute2 procps psmisc tree unzip zip cacert gnupg git
-          qemu virt-manager virtiofsd kubernetes-helm gnumake git tailscale
+          curl wget git unzip zip tree cacert
+          iproute2 iputils bind
+          procps psmisc
+          kubectl kubernetes-helm jq
+          neovim
+          eza bat fzf
         ];
       };
+
+      fonts = {
+        packages = with pkgs; [
+          nerd-fonts.jetbrains-mono
+        ];
+        fontconfig.enable = true;
+      };
+
       security.sudo.wheelNeedsPassword = false;
       users = {
         mutableUsers = false;
@@ -80,8 +90,6 @@ in
           };
         };
       };
-      # Virtualization
-      programs.virt-manager.enable = true;
       virtualisation = {
         spiceUSBRedirection.enable = true;
         libvirtd = {
@@ -92,7 +100,6 @@ in
           };
         };
       };
-      # Services
       services = {
         journald.extraConfig = ''
           Storage=persistent
@@ -140,28 +147,58 @@ in
           };
         };
       };
-      # Zsh Shell Configuration
-      programs.zsh = {
-        enable = true;
-        enableCompletion = true;
-        autosuggestions.enable = true;
-        syntaxHighlighting.enable = true;
-        ohMyZsh = {
-          enable = true;
-          theme = "robbyrussell";
-          plugins = [ "git" "sudo" "systemd" ];
+      programs = {
+        virt-manager.enable = true;
+        fzf = {
+          fuzzyCompletion = true;
+          keybindings = true;
         };
-        shellAliases = {
-          c = "clear";
-          e = "exit";
-          ls = "eza --icons";
-          ll = "eza -lh --icons --git --group-directories-first";
-          la = "eza -lah --icons --git --group-directories-first";
-          cat = "bat --paging=never";
-          ".." = "cd ..";
-          nos = "sudo nixos-rebuild switch --flake .";
-          noc = "sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +3 && sudo nix-collect-garbage -d";
-          nfn = "nix flake update";
+        zsh = {
+          enable = true;
+          enableCompletion = true;
+          autosuggestions.enable = true;
+          syntaxHighlighting.enable = true;
+          ohMyZsh = {
+            enable = true;
+            theme = "agnoster";
+            plugins = [ "git" "sudo" "systemd" ];
+          };
+          shellAliases = {
+            c = "clear";
+            e = "exit";
+            ls = "eza --icons";
+            ll = "eza -lh --icons --git --group-directories-first";
+            la = "eza -lah --icons --git --group-directories-first";
+            cat = "bat --paging=never";
+            ".." = "cd ..";
+            k = "kubectl";
+            kgp = "kubectl get pods";
+            kgpa = "kubectl get pods -A";
+            kgs = "kubectl get svc";
+            kgn = "kubectl get nodes";
+            kgd = "kubectl get deployments";
+            kgi = "kubectl get ingress";
+            kaf = "kubectl apply -f";
+            kdel = "kubectl delete";
+            kdelf = "kubectl delete -f";
+            kdesc = "kubectl describe";
+            klog = "kubectl logs -f";
+            kex = "kubectl exec -it";
+            kctx = "kubectl config current-context";
+            kns = "kubectl config set-context --current --namespace";
+            kaml = "kubectl get -o yaml";
+            ktop = "kubectl top pods";
+          };
+          interactiveShellInit = ''
+            node-login() {
+              local target="$1"
+              if [[ -z "$target" ]]; then
+                echo "Usage: node-login <midguard-01|midguard-02>"
+                return 1
+              fi
+              sudo ssh -i /etc/ssh/ssh_host_ed25519_key homelabadmin@"$target"
+            }
+          '';
         };
       };
     }

@@ -36,7 +36,6 @@ in
       description = "Resolver nameservers, used only when staticIPv4 is set.";
     };
   };
-
   config = lib.mkMerge [
     {
       boot = {
@@ -59,10 +58,25 @@ in
       environment = {
         enableAllTerminfo = true;
         systemPackages = with pkgs; [
-          curl neovim vim wget eza bat jdk21_headless traceroute bind nettools iputils glances lsof
-          strace tcpdump ncdu jq iproute2 procps psmisc tree unzip zip cacert gnupg git
-          qemu virt-manager virtiofsd kubernetes-helm gnumake git tailscale
+          # Core / basic utilities
+          curl wget git unzip zip tree cacert
+          # Networking & troubleshooting essentials
+          iproute2 iputils bind
+          # System / process utilities
+          procps psmisc
+          # Kubernetes
+          kubectl kubernetes-helm jq
+          # Editor
+          neovim
+          # Quality-of-life CLI tools
+          eza bat
         ];
+      };
+      fonts = {
+        packages = with pkgs; [
+          nerd-fonts.jetbrains-mono
+        ];
+        fontconfig.enable = true;
       };
       security.sudo.wheelNeedsPassword = false;
       users = {
@@ -140,7 +154,7 @@ in
           };
         };
       };
-      # Zsh Shell Configuration
+      programs.fzf.enable = true;
       programs.zsh = {
         enable = true;
         enableCompletion = true;
@@ -148,7 +162,7 @@ in
         syntaxHighlighting.enable = true;
         ohMyZsh = {
           enable = true;
-          theme = "robbyrussell";
+          theme = "agnoster";
           plugins = [ "git" "sudo" "systemd" ];
         };
         shellAliases = {
@@ -163,6 +177,19 @@ in
           noc = "sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +3 && sudo nix-collect-garbage -d";
           nfn = "nix flake update";
         };
+        # node-login <hostname>: SSH into another cluster node using the
+        # host's own ed25519 host key (the shared trust anchor between nodes).
+        # Requires sudo since only root can read the host private key.
+        interactiveShellInit = ''
+          node-login() {
+            local target="$1"
+            if [[ -z "$target" ]]; then
+              echo "Usage: node-login <midguard-01|midguard-02>"
+              return 1
+            fi
+            sudo ssh -i /etc/ssh/ssh_host_ed25519_key homelabadmin@"$target"
+          }
+        '';
       };
     }
     (lib.mkIf (config.myNetwork.staticIPv4 != null) {

@@ -58,26 +58,22 @@ in
       environment = {
         enableAllTerminfo = true;
         systemPackages = with pkgs; [
-          # Core / basic utilities
           curl wget git unzip zip tree cacert
-          # Networking & troubleshooting essentials
           iproute2 iputils bind
-          # System / process utilities
           procps psmisc
-          # Kubernetes
           kubectl kubernetes-helm jq
-          # Editor
           neovim
-          # Quality-of-life CLI tools
-          eza bat
+          eza bat fzf
         ];
       };
+
       fonts = {
         packages = with pkgs; [
           nerd-fonts.jetbrains-mono
         ];
         fontconfig.enable = true;
       };
+
       security.sudo.wheelNeedsPassword = false;
       users = {
         mutableUsers = false;
@@ -94,8 +90,6 @@ in
           };
         };
       };
-      # Virtualization
-      programs.virt-manager.enable = true;
       virtualisation = {
         spiceUSBRedirection.enable = true;
         libvirtd = {
@@ -106,7 +100,6 @@ in
           };
         };
       };
-      # Services
       services = {
         journald.extraConfig = ''
           Storage=persistent
@@ -154,42 +147,59 @@ in
           };
         };
       };
-      programs.fzf.enable = true;
-      programs.zsh = {
-        enable = true;
-        enableCompletion = true;
-        autosuggestions.enable = true;
-        syntaxHighlighting.enable = true;
-        ohMyZsh = {
+      programs = {
+        virt-manager.enable = true;
+        fzf = {
+          fuzzyCompletion = true;
+          keybindings = true;
+        };
+        zsh = {
           enable = true;
-          theme = "agnoster";
-          plugins = [ "git" "sudo" "systemd" ];
+          enableCompletion = true;
+          autosuggestions.enable = true;
+          syntaxHighlighting.enable = true;
+          ohMyZsh = {
+            enable = true;
+            theme = "agnoster";
+            plugins = [ "git" "sudo" "systemd" ];
+          };
+          shellAliases = {
+            c = "clear";
+            e = "exit";
+            ls = "eza --icons";
+            ll = "eza -lh --icons --git --group-directories-first";
+            la = "eza -lah --icons --git --group-directories-first";
+            cat = "bat --paging=never";
+            ".." = "cd ..";
+            k = "kubectl";
+            kgp = "kubectl get pods";
+            kgpa = "kubectl get pods -A";
+            kgs = "kubectl get svc";
+            kgn = "kubectl get nodes";
+            kgd = "kubectl get deployments";
+            kgi = "kubectl get ingress";
+            kaf = "kubectl apply -f";
+            kdel = "kubectl delete";
+            kdelf = "kubectl delete -f";
+            kdesc = "kubectl describe";
+            klog = "kubectl logs -f";
+            kex = "kubectl exec -it";
+            kctx = "kubectl config current-context";
+            kns = "kubectl config set-context --current --namespace";
+            kaml = "kubectl get -o yaml";
+            ktop = "kubectl top pods";
+          };
+          interactiveShellInit = ''
+            node-login() {
+              local target="$1"
+              if [[ -z "$target" ]]; then
+                echo "Usage: node-login <midguard-01|midguard-02>"
+                return 1
+              fi
+              sudo ssh -i /etc/ssh/ssh_host_ed25519_key homelabadmin@"$target"
+            }
+          '';
         };
-        shellAliases = {
-          c = "clear";
-          e = "exit";
-          ls = "eza --icons";
-          ll = "eza -lh --icons --git --group-directories-first";
-          la = "eza -lah --icons --git --group-directories-first";
-          cat = "bat --paging=never";
-          ".." = "cd ..";
-          nos = "sudo nixos-rebuild switch --flake .";
-          noc = "sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +3 && sudo nix-collect-garbage -d";
-          nfn = "nix flake update";
-        };
-        # node-login <hostname>: SSH into another cluster node using the
-        # host's own ed25519 host key (the shared trust anchor between nodes).
-        # Requires sudo since only root can read the host private key.
-        interactiveShellInit = ''
-          node-login() {
-            local target="$1"
-            if [[ -z "$target" ]]; then
-              echo "Usage: node-login <midguard-01|midguard-02>"
-              return 1
-            fi
-            sudo ssh -i /etc/ssh/ssh_host_ed25519_key homelabadmin@"$target"
-          }
-        '';
       };
     }
     (lib.mkIf (config.myNetwork.staticIPv4 != null) {

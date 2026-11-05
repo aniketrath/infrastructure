@@ -9,10 +9,8 @@ let
 in
 {
   "usercreds_homelabadmin.age".publicKeys = adminKeys;
-  "clustercreds_k3s.age".publicKeys = clusterNodes;
-  "clustercreds_postgres.age".publicKeys = clusterNodes;
-  "clustercreds_tailscale.age".publicKeys = clusterNodes;
-  "clustercreds_infisical.age".publicKeys = clusterNodes;
-  
-  __access_keys = adminKeys;
+  "clustercreds_k3s.age".publicKeys = adminKeys;
+  "clustercreds_postgres.age".publicKeys = adminKeys;
+  "clustercreds_tailscale.age".publicKeys = adminKeys;
+  "clustercreds_infisical.age".publicKeys = adminKeys;
 }

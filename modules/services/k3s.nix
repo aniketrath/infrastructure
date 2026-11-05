@@ -30,6 +30,12 @@
     ];
     users.groups.kubectl = { };
 
+    services.openiscsi = {
+      enable = true;
+      name = "iqn.2020-08.org.linux-iscsi.${config.networking.hostName}";
+    };
+    environment.systemPackages = with pkgs; [ nfs-utils ];
+
     services.k3s = lib.mkMerge [
       {
         enable = true;
@@ -53,6 +59,7 @@
         2379  # etcd client
         2380  # etcd peer
         10250 # Kubelet
+        179   # kube-vip BGP
       ];
       allowedUDPPorts = [ 8472 ]; # Flannel VXLAN
       allowedTCPPortRanges = [ { from = 30000; to = 32767; } ]; # NodePort services

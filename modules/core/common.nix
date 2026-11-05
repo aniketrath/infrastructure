@@ -61,7 +61,7 @@ in
           curl wget git unzip zip tree cacert
           iproute2 iputils bind
           procps psmisc
-          kubectl kubernetes-helm jq
+          kubectl kubernetes-helm fluxcd k9s stern kubectx jq
           neovim
           eza bat fzf
         ];
@@ -86,7 +86,7 @@ in
             shell = pkgs.zsh;
             extraGroups = [ "wheel" "libvirtd" "kvm" "qemu" "kubectl"];
             hashedPasswordFile = config.age.secrets.homelabadmin-password.path;
-            openssh.authorizedKeys.keys = secrets.__access_keys;
+            openssh.authorizedKeys.keys = import ../../secrets/access-keys.nix;
           };
         };
       };

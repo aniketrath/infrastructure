@@ -61,7 +61,7 @@ in
           curl wget git unzip zip tree cacert
           iproute2 iputils bind
           procps psmisc
-          kubectl kubernetes-helm jq
+          kubectl kubernetes-helm fluxcd k9s stern kubectx jq
           neovim
           eza bat fzf
         ];
